@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>coffeevibes</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Nunito-SemiBold.ttf</string>
+	</array>
+	<key>Environment</key> 
+	<string>Sandbox</string> 
+	<key>CFBundleDisplayName</key>
+	<string>CoffeeVibes (Sandbox)</string>
+	<key>API_BASE_URL</key>
+	<string>https://adnprvpydjqfpqsqndqj.supabase.co</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>NSCameraUsageDescription</key>
+<string>We need access to your camera to take profile photos.</string>
+</dict>
+</plist>

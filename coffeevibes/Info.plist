@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_BASE_URL</key>
+	<string>https://adnprvpydjqfpqsqndqj.supabase.co</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>coffeevibes</string>
+				<string>com.ravenstudios.coffeevibes</string>
+			</array>
+		</dict>
+	</array>
+	<key>Environment</key>
+	<string>Production</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Nunito-SemiBold.ttf</string>
+	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for voice search</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We need access to speech recognition for voice search functionality</string>
+</dict>
+</plist>
