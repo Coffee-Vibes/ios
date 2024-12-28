@@ -95,6 +95,9 @@ struct ProfileHeader: View {
     @Binding var isFinish: Bool
     @State private var selectedImage: UIImage?
     private let supabase = SupabaseConfig.client
+    @State private var reviewCount: Int = 0
+    @State private var visitCount: Int = 0
+    @State private var favoriteCount: Int = 0
     
     var body: some View {
         VStack(spacing: 16) {
@@ -150,11 +153,11 @@ struct ProfileHeader: View {
             // Stats Row
             HStack(spacing: 10) {
                 Spacer(minLength: .zero)
-                StatItem(count: "10+", title: "Awarded for\nwriting reviews")
+                StatItem(count: "\(reviewCount)+", title: "Awarded for\nwriting reviews")
                 Divider().frame(height: 40)
-                StatItem(count: "24+", title: "Visited coffee\nshops")
+                StatItem(count: "\(visitCount)+", title: "Visited coffee\nshops")
                 Divider().frame(height: 40)
-                StatItem(count: "5+", title: "Saved new\nfavorites")
+                StatItem(count: "\(favoriteCount)+", title: "Saved new\nfavorites")
                 Spacer(minLength: .zero)
             }
             
@@ -182,6 +185,58 @@ struct ProfileHeader: View {
             if selectedImage != nil {
                 saveProfile()
             }
+        }
+        .task {
+            await fetchCounts()
+        }
+    }
+    
+    private func fetchCounts() async {
+        guard let userId = userDetails?.userId else { return }
+        
+        do {
+            // Fetch review count
+            let reviewResponse = try await supabase.database
+                .from("reviews")
+                .select("""
+                    count
+                """)
+                .eq("user_id", value: userId)
+                .execute()
+            
+            if let countString = (try? reviewResponse.value as? [String: Int])?["count"] {
+                reviewCount = countString
+            }
+
+            // Fetch visit count
+            let visitResponse = try await supabase.database
+                .from("visits")
+                .select("""
+                    count
+                """)
+                .eq("user_id", value: userId)
+                .execute()
+            
+            if let countString = (try? visitResponse.value as? [String: Int])?["count"] {
+                visitCount = countString
+            }
+
+            // Fetch favorites count
+            let favoriteResponse = try await supabase.database
+                .from("favorites")
+                .select("""
+                    count
+                """)
+                .eq("user_id", value: userId)
+                .execute()
+            
+            if let countString = (try? favoriteResponse.value as? [String: Int])?["count"] {
+                favoriteCount = countString
+            }
+            
+        } catch {
+            print("Error fetching counts: \(error)")
+            // Keep the default values of 0 in case of error
         }
     }
     
