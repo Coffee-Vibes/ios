@@ -13,25 +13,33 @@ struct FavoritesScreen: View {
    
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(alignment: .center, spacing: 16) {
+            // Title
+            Text("Favorites")
+                .font(.system(size: 18, weight: .semibold))
+                .multilineTextAlignment(.center)
+                .foregroundColor(Color(hex: "1D1612"))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 20)
+            
             // Categories ScrollView
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     Button(action: {}) {
                         Image(systemName: "plus")
-                            .foregroundColor(.brown)
+                            .foregroundColor(AppColor.primary)
                             .padding()
                             .background(Color(.systemBackground))
                             .clipShape(Circle())
                             .overlay(
                                 Circle()
-                                    .stroke(Color.brown, lineWidth: 1)
+                                    .stroke(AppColor.primary, lineWidth: 1)
                             )
                     }
                     
-                    CategoryPill(title: "Study Spots", icon: "book.fill", isSelected: true)
-                    CategoryPill(title: "Best for Dates", icon: "wifi", isSelected: false)
-                    // Add more categories as needed
+                    CategoryPill(title: "Good Vibes", icon: "hand.thumbsup.fill", isSelected: true)
+                    CategoryPill(title: "Has WiFi", icon: "wifi", isSelected: false)
+                    CategoryPill(title: "Quiet", icon: "speaker.slash.fill", isSelected: false)
                 }
                 .padding(.horizontal)
             }
@@ -39,8 +47,8 @@ struct FavoritesScreen: View {
             // Lists Section
             VStack(alignment: .leading) {
                 Text("Lists")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Color(hex: "1D1612"))
                     .padding(.horizontal)
                 
                 ScrollView {
@@ -49,7 +57,16 @@ struct FavoritesScreen: View {
                             ProgressView()
                         } else {
                             ForEach(favorites) { shop in
-                                ShopCard(shop: shop, locationManager: locationManager)
+                                CoffeeShopCard(
+                                    shop: shop,
+                                    distance: formatDistance(distance: calculateDistance(for: shop)),
+                                    onViewDetails: {
+                                        // This closure is called when View Details is tapped
+                                        // The navigation is handled by navigationDestination in CoffeeShopCard
+                                    },
+                                    showDragIndicator: false,
+                                    showShadow: false
+                                )
                             }
                         }
                     }
@@ -57,10 +74,26 @@ struct FavoritesScreen: View {
                 }
             }
         }
-        .navigationTitle("Favorites")
-        .onAppear {
-            fetchFavorites()
+        .background(Color(hex: "FAF7F4"))
+        .task {
+            await fetchFavorites()
         }
+    }
+    
+    // Helper function to calculate and format distance
+    private func calculateDistance(for shop: CoffeeShop) -> Double? {
+        guard let latitude = shop.latitude,
+              let longitude = shop.longitude else { return nil }
+        
+        let shopLocation = CLLocation(latitude: latitude, longitude: longitude)
+        return locationManager.calculateDistance(to: shopLocation)
+    }
+    
+    private func formatDistance(distance: Double?) -> String {
+        if let distance = distance {
+            return String(format: "%.1f miles away", distance)
+        }
+        return ""
     }
     
     private func fetchFavorites() {
@@ -108,14 +141,14 @@ struct CategoryPill: View {
     let isSelected: Bool
     
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: icon)
             Text(title)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(isSelected ? Color.brown : Color.blue.opacity(0.1))
-        .foregroundColor(isSelected ? .white : .black)
+        .background(isSelected ? AppColor.primary : Color(hex: "F7F0E1"))
+        .foregroundColor(isSelected ? .white : AppColor.foreground)
         .clipShape(Capsule())
     }
 }

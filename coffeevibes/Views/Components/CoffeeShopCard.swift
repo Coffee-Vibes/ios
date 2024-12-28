@@ -5,25 +5,37 @@ struct CoffeeShopCard: View {
     let shop: CoffeeShop
     let distance: String
     let onViewDetails: () -> Void
+    let showDragIndicator: Bool
+    let showShadow: Bool
     @StateObject private var coffeeShopService = CoffeeShopService()
     @State private var showingDetail = false
     @State private var isFavorite: Bool
     
-    init(shop: CoffeeShop, distance: String, onViewDetails: @escaping () -> Void) {
+    init(
+        shop: CoffeeShop, 
+        distance: String, 
+        onViewDetails: @escaping () -> Void,
+        showDragIndicator: Bool = true,
+        showShadow: Bool = true
+    ) {
         self.shop = shop
         self.distance = distance
         self.onViewDetails = onViewDetails
+        self.showDragIndicator = showDragIndicator
+        self.showShadow = showShadow
         _isFavorite = State(initialValue: shop.isFavorite)
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            // Drag Indicator
-            RoundedRectangle(cornerRadius: 2.5)
-                .fill(Color.gray.opacity(0.5))
-                .frame(width: 36, height: 5)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
+            // Only show drag indicator if showDragIndicator is true
+            if showDragIndicator {
+                RoundedRectangle(cornerRadius: 2.5)
+                    .fill(Color.gray.opacity(0.5))
+                    .frame(width: 36, height: 5)
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
+            }
             
             HStack(alignment: .center) {
                 // Shop Image and Info
@@ -130,21 +142,17 @@ struct CoffeeShopCard: View {
                     showingDetail = true
                     onViewDetails()
                 }) {
-                    HStack(spacing: 8) {
-                        Text("View Details")
-                            .font(.system(size: 14, weight: .medium))
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 14, weight: .medium))
-                    }
-                    .foregroundColor(AppColor.primary)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(AppColor.background)
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(AppColor.primary, lineWidth: 1)
-                    )
+                    Text("View Details")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color(hex: "1D1612"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(hex: "F7F0E1"))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color(hex: "5D4037"), lineWidth: 1)
+                        )
                 }
             }
             .padding(.horizontal)
@@ -152,7 +160,7 @@ struct CoffeeShopCard: View {
         }
         .background(Color.white)
         .cornerRadius(12)
-        .shadow(radius: 5)
+        .shadow(radius: showShadow ? 5 : 0)
         .navigationDestination(isPresented: $showingDetail) {
             CoffeeShopDetailView(coffeeShop: shop)
         }

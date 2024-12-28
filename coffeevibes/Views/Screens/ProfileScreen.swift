@@ -346,6 +346,7 @@ struct AchievementBadge: View {
 
 struct SettingsSection: View {
     @StateObject private var authService = AuthenticationService()
+    @State private var showingLogoutConfirmation = false
     
     var body: some View {
         VStack(spacing: 1) {
@@ -353,9 +354,7 @@ struct SettingsSection: View {
                 if item == .logout {
                     // Special case for logout - use Button instead of NavigationLink
                     Button {
-                        Task {
-                            try? await authService.signOut()
-                        }
+                        showingLogoutConfirmation = true
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: item.icon)
@@ -375,6 +374,9 @@ struct SettingsSection: View {
                     NavigationLink {
                         if item == .promotions {
                             PromotionsView()
+                                .navigationBarBackButtonHidden()
+                        } else if item == .editProfile {
+                            EditProfileView()
                                 .navigationBarBackButtonHidden()
                         }
                     } label: {
@@ -398,6 +400,18 @@ struct SettingsSection: View {
         .background(Color(hex: "F2F4F7"))
         .cornerRadius(12)
         .padding(.horizontal, 16)
+        .confirmationDialog(
+            "Are you sure you want to log out?",
+            isPresented: $showingLogoutConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Log Out", role: .destructive) {
+                Task {
+                    try? await authService.signOut()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 }
 
@@ -424,30 +438,149 @@ enum SettingItem: String, CaseIterable {
 // MARK: - Edit Profile View
 struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var name = ""
-    @State private var bio = ""
+    @StateObject private var authService = AuthenticationService()
+    @State private var name: String = ""
+    @State private var bio: String = ""
+    @State private var selectedPreferences: Set<String> = []
+    @State private var isLoading = false
+    private let supabase = SupabaseConfig.client
+    
+    let preferences = [
+        "Quiet spots",
+        "WiFi-ready cafes",
+        "Outdoor seating",
+        "Group hangouts"
+    ]
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Profile Information")) {
-                    TextField("Name", text: $name)
-                    TextField("Bio", text: $bio)
+        ScrollView {
+            VStack(spacing: 24) {
+                // Name Field
+                VStack(alignment: .leading) {
+                    Text("Name")
+                        .foregroundColor(Color(hex: "1D1612"))
+                        .font(.system(size: 14, weight: .semibold))
+                    TextField("Enter your name", text: $name)
+                        .textFieldStyle(RoundedTextFieldStyle())
+                }
+                
+                // Bio Field
+                VStack(alignment: .leading) {
+                    Text("Bio")
+                        .foregroundColor(Color(hex: "1D1612"))
+                        .font(.system(size: 14, weight: .semibold))
+                    TextEditor(text: $bio)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
+                }
+                
+                // Preferences Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Your Preferences")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color(hex: "1D1612"))
+                    
+                    FlowLayout(spacing: 8, alignment: .leading) {
+                        ForEach(preferences, id: \.self) { preference in
+                            PreferenceButton(
+                                title: preference,
+                                isSelected: selectedPreferences.contains(preference),
+                                action: {
+                                    if selectedPreferences.contains(preference) {
+                                        selectedPreferences.remove(preference)
+                                    } else {
+                                        selectedPreferences.insert(preference)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
-            .navigationTitle("Edit Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
+            .padding()
+        }
+        .background(AppColor.background)
+        .navigationTitle("Edit Profile")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button(action: saveProfile) {
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Text("Save")
                     }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        // Save profile changes
-                        dismiss()
+            }
+        }
+        .onAppear {
+            loadUserData()
+        }
+    }
+    
+    private func loadUserData() {
+        guard let currentUserId = authService.currentUser?.id else { return }
+        
+        Task {
+            do {
+                let response: UserDetails = try await supabase.database
+                    .from("user_profiles")
+                    .select("*")
+                    .eq("user_id", value: currentUserId)
+                    .single()
+                    .execute()
+                    .value
+                
+                await MainActor.run {
+                    name = response.name ?? ""
+                    bio = response.bio ?? ""
+                    if let vibes = response.preferredVibes {
+                        selectedPreferences = Set(vibes)
                     }
+                }
+            } catch {
+                print("Error loading user data: \(error)")
+            }
+        }
+    }
+    
+    private func saveProfile() {
+        guard let currentUserId = authService.currentUser?.id else { return }
+        isLoading = true
+        
+        Task {
+            do {
+                let arrayString = "{" + Array(selectedPreferences).map { "\"\($0)\"" }.joined(separator: ",") + "}"
+                
+                try await supabase.database
+                    .from("user_profiles")
+                    .update([
+                        "name": name,
+                        "bio": bio,
+                        "preferred_vibes": arrayString
+                    ])
+                    .eq("user_id", value: currentUserId)
+                    .execute()
+                
+                await MainActor.run {
+                    isLoading = false
+                    dismiss()
+                }
+            } catch {
+                print("Error saving profile: \(error)")
+                await MainActor.run {
+                    isLoading = false
                 }
             }
         }
