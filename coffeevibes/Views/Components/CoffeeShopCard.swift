@@ -1,28 +1,34 @@
 import SwiftUI
+import CoreLocation
 
 struct CoffeeShopCard: View {
     @EnvironmentObject private var authService: AuthenticationService
+    @StateObject private var locationManager = LocationManager()
     let shop: CoffeeShop
     let distance: String
     let onViewDetails: () -> Void
     let showDragIndicator: Bool
     let showShadow: Bool
+    let useNavigationDestination: Bool
     @StateObject private var coffeeShopService = CoffeeShopService()
     @State private var showingDetail = false
     @State private var isFavorite: Bool
+    @State private var calculatedDistance: String = ""
     
     init(
         shop: CoffeeShop, 
         distance: String, 
         onViewDetails: @escaping () -> Void,
         showDragIndicator: Bool = true,
-        showShadow: Bool = true
+        showShadow: Bool = true,
+        useNavigationDestination: Bool = true
     ) {
         self.shop = shop
         self.distance = distance
         self.onViewDetails = onViewDetails
         self.showDragIndicator = showDragIndicator
         self.showShadow = showShadow
+        self.useNavigationDestination = useNavigationDestination
         _isFavorite = State(initialValue: shop.isFavorite)
     }
     
@@ -88,19 +94,14 @@ struct CoffeeShopCard: View {
                 
                 Spacer()
                 
-                Text(distance)
+                Text(calculatedDistance.isEmpty ? distance : calculatedDistance)
                     .h4MediumStyle()
             }
             .padding(.horizontal)
             .padding(.top)
             
             // Tags
-            HStack {
-                CoffeeTagView(text: "Good Vibes", color: Color(hex: "E8F5F0"))
-                CoffeeTagView(text: "Quiet", color: Color(hex: "FCE8F3"))
-                CoffeeTagView(text: "Has WiFi", color: Color(hex: "E8F0FC"))
-            }
-            .padding()
+            shopTags
             
             // Action Buttons
             HStack(spacing: 12) {
@@ -139,8 +140,11 @@ struct CoffeeShopCard: View {
                 
                 // View Details Button
                 Button(action: {
-                    showingDetail = true
-                    onViewDetails()
+                    if useNavigationDestination {
+                        showingDetail = true
+                    } else {
+                        onViewDetails()
+                    }
                 }) {
                     Text("View Details")
                         .font(.system(size: 14, weight: .medium))
@@ -167,6 +171,16 @@ struct CoffeeShopCard: View {
         .task {
             // Check favorite status when view appears
             await checkFavoriteStatus()
+            calculateDistance()
+        }
+        .onChange(of: locationManager.currentLocation) { _ in
+            calculateDistance()
+        }
+        .onChange(of: shop.id) { _ in
+            Task {
+                await checkFavoriteStatus()
+                calculateDistance()
+            }
         }
     }
     
@@ -206,6 +220,48 @@ struct CoffeeShopCard: View {
             print("Error toggling favorite: \(error)")
             // Revert the state if the operation failed
             isFavorite = !isFavorite
+        }
+    }
+    
+    private func calculateDistance() {
+        guard let latitude = shop.latitude,
+              let longitude = shop.longitude else {
+            calculatedDistance = ""
+            return
+        }
+        
+        let shopLocation = CLLocation(latitude: latitude, longitude: longitude)
+        if let distance = locationManager.calculateDistance(to: shopLocation) {
+            calculatedDistance = String(format: "%.1f miles away", distance)
+        } else {
+            calculatedDistance = ""
+        }
+    }
+    
+    private var shopTags: some View {
+        HStack {
+            if !shop.tags.isEmpty {
+                ForEach(shop.tags.prefix(3), id: \.self) { tag in
+                    CoffeeTagView(text: tag, color: tagColor(for: tag))
+                }
+            } else {
+                // Fallback tags if none provided
+                CoffeeTagView(text: "Coffee Shop", color: Color(hex: "E8F5F0"))
+            }
+        }
+        .padding()
+    }
+    
+    private func tagColor(for tag: String) -> Color {
+        switch tag.lowercased() {
+        case "good vibes":
+            return Color(hex: "E8F5F0")
+        case "quiet":
+            return Color(hex: "FCE8F3")
+        case "wifi", "has wifi":
+            return Color(hex: "E8F0FC")
+        default:
+            return Color(hex: "E8F0FC")
         }
     }
 } 

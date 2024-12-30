@@ -204,7 +204,7 @@ private struct UserLocationMarker: View {
             // Outer semi-transparent circle
             Circle()
                 .fill(AppColor.primary.opacity(0.2))
-                .frame(width: 132, height: 132)
+                .frame(width: 20, height: 20)
             
             // Center brown circle
             Circle()
