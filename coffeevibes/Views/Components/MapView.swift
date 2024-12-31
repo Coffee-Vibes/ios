@@ -255,14 +255,11 @@ private struct SelectedCoffeeShopView: View {
         VStack {
             CoffeeShopCard(
                 shop: shop,
-                distance: "0.5 miles away",
                 onViewDetails: onNavigateToDetail
             )
             .padding(.horizontal)
             .padding(.bottom, 115)
         }
-       // .background(Color(hex: "FAF7F4"))
-       // .cornerRadius(16, corners: [.topLeft, .topRight])
         .onChange(of: showingDetail) { newValue in
             if newValue {
                 onNavigateToDetail()

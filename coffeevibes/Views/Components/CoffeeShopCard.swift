@@ -5,30 +5,29 @@ struct CoffeeShopCard: View {
     @EnvironmentObject private var authService: AuthenticationService
     @StateObject private var locationManager = LocationManager()
     let shop: CoffeeShop
-    let distance: String
     let onViewDetails: () -> Void
     let showDragIndicator: Bool
     let showShadow: Bool
     let useNavigationDestination: Bool
+    let onFavoriteToggled: (() -> Void)?
     @StateObject private var coffeeShopService = CoffeeShopService()
     @State private var showingDetail = false
     @State private var isFavorite: Bool
-    @State private var calculatedDistance: String = ""
     
     init(
         shop: CoffeeShop, 
-        distance: String, 
         onViewDetails: @escaping () -> Void,
         showDragIndicator: Bool = true,
         showShadow: Bool = true,
-        useNavigationDestination: Bool = true
+        useNavigationDestination: Bool = true,
+        onFavoriteToggled: (() -> Void)? = nil
     ) {
         self.shop = shop
-        self.distance = distance
         self.onViewDetails = onViewDetails
         self.showDragIndicator = showDragIndicator
         self.showShadow = showShadow
         self.useNavigationDestination = useNavigationDestination
+        self.onFavoriteToggled = onFavoriteToggled
         _isFavorite = State(initialValue: shop.isFavorite)
     }
     
@@ -94,8 +93,10 @@ struct CoffeeShopCard: View {
                 
                 Spacer()
                 
-                Text(formatDistance(shop.distance))
-                    .h4MediumStyle()
+                if let distance = shop.distance {
+                    Text(String(format: "%.1f mi", distance))
+                        .h4MediumStyle()
+                }
             }
             .padding(.horizontal)
             .padding(.top)
@@ -182,13 +183,13 @@ struct CoffeeShopCard: View {
         do {
             if isFavorite {
                 await coffeeShopService.deleteFavorite(shopId: shop.id, userId: userId.uuidString)
+                onFavoriteToggled?()
             } else {
                 await coffeeShopService.createFavorite(shopId: shop.id, userId: userId.uuidString)
             }
             isFavorite.toggle()
         } catch {
             print("Error toggling favorite: \(error)")
-            // Revert the state if the operation failed
             isFavorite = !isFavorite
         }
     }
@@ -220,11 +221,6 @@ struct CoffeeShopCard: View {
         default:
             return Color(hex: "E8F0FC")
         }
-    }
-
-    private func formatDistance(_ distance: Double?) -> String {
-        guard let distance = distance else { return "" }
-        return String(format: "%.1f mi", distance) 
     }
 
 } 
