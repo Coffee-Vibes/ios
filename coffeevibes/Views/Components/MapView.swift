@@ -200,9 +200,9 @@ private struct CoffeeShopMarker: View {
             Image(isSelected ? "coffee_marker_selected" : "coffee_marker")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 40, height: 40)
+               // .frame(width: 40, height: 40)
                 .padding(8)
-                .background(Color(hex: "FCF3ED"))
+               // .background(Color(hex: "FCF3ED"))
                 .clipShape(Circle())
         }
     }

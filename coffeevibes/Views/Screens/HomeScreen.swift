@@ -11,6 +11,8 @@ struct HomeScreen: View {
     @State private var isShowingDetail = false
     @State private var showingFilterSheet = false
     @State private var isCardShowing = false
+    @State private var filterDistance: Double = 5.0
+    @State private var selectedShop: CoffeeShop?
     
     var filteredShops: [CoffeeShop] {
         let shops = coffeeShopService.coffeeShops
@@ -54,10 +56,49 @@ struct HomeScreen: View {
                                     .frame(height: 120) // Adjust this value based on the combined height of search + filters
                                 
                                 List(filteredShops) { shop in
-                                    CoffeeShopRow(coffeeShop: shop)
-                                        .listRowSeparator(.hidden)
-                                        .listRowInsets(EdgeInsets())
-                                        .listRowBackground(Color(hex: "FAF7F4"))
+                                    CoffeeShopCard(
+                                        shop: shop,
+                                        onViewDetails: {
+                                            selectedShop = shop
+                                            isShowingDetail = true
+                                        },
+                                        showDragIndicator: false,
+                                        showShadow: false,
+                                        useNavigationDestination: true,
+                                        onFavoriteToggled: {
+                                            Task {
+                                                if let userId = authService.currentUser?.id {
+                                                    if shop.isFavorite {
+                                                        await coffeeShopService.deleteFavorite(
+                                                            shopId: shop.id,
+                                                            userId: userId.uuidString
+                                                        )
+                                                    } else {
+                                                        await coffeeShopService.createFavorite(
+                                                            shopId: shop.id,
+                                                            userId: userId.uuidString
+                                                        )
+                                                    }
+                                                    // Refresh the shops list to update favorite status
+                                                    if let location = locationManager.currentLocation {
+                                                        let shops = try? await coffeeShopService.getCoffeeShopsNearby(
+                                                            userId: userId.uuidString,
+                                                            latitude: location.coordinate.latitude,
+                                                            longitude: location.coordinate.longitude,
+                                                            radiusInMiles: filterDistance
+                                                        )
+                                                        if let shops = shops {
+                                                            coffeeShopService.coffeeShops = shops
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    )
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets())
+                                    .listRowBackground(Color(hex: "FAF7F4"))
+                                    .padding(.vertical, 8)
                                 }
                                 .listStyle(PlainListStyle())
                                 .scrollContentBackground(.hidden)
@@ -119,7 +160,28 @@ struct HomeScreen: View {
             }
         }
         .sheet(isPresented: $showingFilterSheet) {
-            CoffeeShopFilterView()
+            CoffeeShopFilterView(
+                initialDistance: filterDistance,
+                onApplyFilters: { distance in
+                    filterDistance = distance
+                    if let location = locationManager.currentLocation,
+                       let userId = authService.currentUser?.id {
+                        Task {
+                            do {
+                                let shops = try await coffeeShopService.getCoffeeShopsNearby(
+                                    userId: userId.uuidString,
+                                    latitude: location.coordinate.latitude,
+                                    longitude: location.coordinate.longitude,
+                                    radiusInMiles: distance
+                                )
+                                coffeeShopService.coffeeShops = shops
+                            } catch {
+                                print("Error fetching nearby coffee shops: \(error)")
+                            }
+                        }
+                    }
+                }
+            )
         }
         .task {
             guard locationManager.currentLocation == nil else { return }

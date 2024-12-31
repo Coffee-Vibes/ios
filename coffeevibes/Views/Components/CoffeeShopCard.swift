@@ -113,7 +113,7 @@ struct CoffeeShopCard: View {
                     }
                 }) {
                     Image(systemName: isFavorite ? "heart.fill" : "heart")
-                        .foregroundColor(isFavorite ? .red : AppColor.foreground)
+                        .foregroundColor(isFavorite ? AppColor.primary : AppColor.foreground)
                         .frame(width: 24, height: 24)
                 }
                 .frame(width: 44, height: 44)

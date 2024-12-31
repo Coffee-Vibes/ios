@@ -22,14 +22,12 @@
 		841AEF952D02D574009F762B /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF662D02D574009F762B /* UserService.swift */; };
 		841AEF962D02D574009F762B /* FontManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF682D02D574009F762B /* FontManager.swift */; };
 		841AEF972D02D574009F762B /* CoffeeShopCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF6A2D02D574009F762B /* CoffeeShopCard.swift */; };
-		841AEF982D02D574009F762B /* CoffeeShopRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF6B2D02D574009F762B /* CoffeeShopRow.swift */; };
 		841AEF992D02D574009F762B /* CoffeeTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF6C2D02D574009F762B /* CoffeeTagView.swift */; };
 		841AEF9B2D02D574009F762B /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF6E2D02D574009F762B /* MapView.swift */; };
 		841AEF9C2D02D574009F762B /* ViewImports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF6F2D02D574009F762B /* ViewImports.swift */; };
 		841AEF9D2D02D574009F762B /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF712D02D574009F762B /* OnboardingView.swift */; };
 		841AEF9E2D02D574009F762B /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF722D02D574009F762B /* OnboardingViewModel.swift */; };
 		841AEF9F2D02D574009F762B /* CoffeeShopDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF742D02D574009F762B /* CoffeeShopDetailView.swift */; };
-		841AEFA02D02D574009F762B /* ExploreScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF752D02D574009F762B /* ExploreScreen.swift */; };
 		841AEFA12D02D574009F762B /* FavoritesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF762D02D574009F762B /* FavoritesScreen.swift */; };
 		841AEFA22D02D574009F762B /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF772D02D574009F762B /* HomeScreen.swift */; };
 		841AEFA32D02D574009F762B /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF782D02D574009F762B /* ProfileScreen.swift */; };
@@ -91,14 +89,12 @@
 		841AEF662D02D574009F762B /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		841AEF682D02D574009F762B /* FontManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontManager.swift; sourceTree = "<group>"; };
 		841AEF6A2D02D574009F762B /* CoffeeShopCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopCard.swift; sourceTree = "<group>"; };
-		841AEF6B2D02D574009F762B /* CoffeeShopRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopRow.swift; sourceTree = "<group>"; };
 		841AEF6C2D02D574009F762B /* CoffeeTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeTagView.swift; sourceTree = "<group>"; };
 		841AEF6E2D02D574009F762B /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		841AEF6F2D02D574009F762B /* ViewImports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewImports.swift; sourceTree = "<group>"; };
 		841AEF712D02D574009F762B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		841AEF722D02D574009F762B /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		841AEF742D02D574009F762B /* CoffeeShopDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopDetailView.swift; sourceTree = "<group>"; };
-		841AEF752D02D574009F762B /* ExploreScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreScreen.swift; sourceTree = "<group>"; };
 		841AEF762D02D574009F762B /* FavoritesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesScreen.swift; sourceTree = "<group>"; };
 		841AEF772D02D574009F762B /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		841AEF782D02D574009F762B /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
@@ -218,7 +214,6 @@
 			children = (
 				EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */,
 				841AEF6A2D02D574009F762B /* CoffeeShopCard.swift */,
-				841AEF6B2D02D574009F762B /* CoffeeShopRow.swift */,
 				841AEF6C2D02D574009F762B /* CoffeeTagView.swift */,
 				841AEF6E2D02D574009F762B /* MapView.swift */,
 				841AEF6F2D02D574009F762B /* ViewImports.swift */,
@@ -239,7 +234,6 @@
 			isa = PBXGroup;
 			children = (
 				841AEF742D02D574009F762B /* CoffeeShopDetailView.swift */,
-				841AEF752D02D574009F762B /* ExploreScreen.swift */,
 				841AEF762D02D574009F762B /* FavoritesScreen.swift */,
 				841AEF772D02D574009F762B /* HomeScreen.swift */,
 				841AEF782D02D574009F762B /* ProfileScreen.swift */,
@@ -479,7 +473,6 @@
 				841AEF952D02D574009F762B /* UserService.swift in Sources */,
 				841AEF962D02D574009F762B /* FontManager.swift in Sources */,
 				841AEF972D02D574009F762B /* CoffeeShopCard.swift in Sources */,
-				841AEF982D02D574009F762B /* CoffeeShopRow.swift in Sources */,
 				84BBC1362D03533000782B7D /* PromotionsView.swift in Sources */,
 				841AEF992D02D574009F762B /* CoffeeTagView.swift in Sources */,
 				841AEF9B2D02D574009F762B /* MapView.swift in Sources */,
@@ -488,7 +481,6 @@
 				841AEF9D2D02D574009F762B /* OnboardingView.swift in Sources */,
 				841AEF9E2D02D574009F762B /* OnboardingViewModel.swift in Sources */,
 				841AEF9F2D02D574009F762B /* CoffeeShopDetailView.swift in Sources */,
-				841AEFA02D02D574009F762B /* ExploreScreen.swift in Sources */,
 				841AEFA12D02D574009F762B /* FavoritesScreen.swift in Sources */,
 				841AEFA22D02D574009F762B /* HomeScreen.swift in Sources */,
 				841AEFA32D02D574009F762B /* ProfileScreen.swift in Sources */,

@@ -6,12 +6,12 @@
       "scale" : "1x"
     },
     {
-      "filename" : "coffee_marker_2x.png",
+      "filename" : "coffee_marker@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "coffee_marker_3x.png",
+      "filename" : "coffee_marker@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

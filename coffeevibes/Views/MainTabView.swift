@@ -11,12 +11,12 @@ struct MainTabView: View {
                         Text("Home")
                     }
                 
-                ExploreScreen()
-                    .tabItem {
-                        Image("nav_explore")
-                            .renderingMode(.template)
-                        Text("Explore")
-                    }
+                // ExploreScreen()
+                //     .tabItem {
+                //         Image("nav_explore")
+                //             .renderingMode(.template)
+                //         Text("Explore")
+                //     }
                 
                 FavoritesScreen()
                     .tabItem {

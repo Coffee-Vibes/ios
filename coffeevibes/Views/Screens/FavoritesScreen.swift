@@ -69,7 +69,13 @@ struct FavoritesScreen: View {
                     }
                 }
             }
-            .navigationTitle("Favorites")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Favorites")
+                        .font(.headline)
+                        .foregroundColor(Color(hex: "1D1612"))
+                }
+            }
             .background(Color(hex: "FAF7F4"))
             .onAppear {
                 locationManager.requestLocation()
