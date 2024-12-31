@@ -9,6 +9,39 @@ struct NearbySearchParams: Encodable {
     let radius: Double
 }
 
+struct ShopSearchParams: Encodable {
+    let userId: String
+    let lat: Double
+    let lon: Double
+    let radius: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "p_user_id"
+        case lat = "p_user_lat"
+        case lon = "p_user_lon"
+        case radius = "p_radius"
+    }
+}
+
+// Add this struct to handle the response format
+struct CoffeeShopResponse: Codable {
+    let shopRecord: CoffeeShop
+    let isFavorite: Bool
+    let isOpenNow: Bool
+    let isClosingSoon: Bool
+    let todayHours: String?
+    let distance: Double?
+    
+    enum CodingKeys: String, CodingKey {
+        case shopRecord = "shop_record"
+        case isFavorite = "is_favorite"
+        case isOpenNow = "is_open_now"
+        case isClosingSoon = "is_closing_soon"
+        case todayHours = "today_hours"
+        case distance
+    }
+}
+
 @MainActor
 class CoffeeShopService: ObservableObject {
     @Published var coffeeShops: [CoffeeShop] = []
@@ -19,74 +52,9 @@ class CoffeeShopService: ObservableObject {
     private let supabaseClient = SupabaseConfig.client
 
     // Function to get all coffee shops using async/await
-    func getAllCoffeeShops() async {
-        isLoading = true
-        do {
-            let calendar = Calendar.current
-            let today = calendar.component(.weekday, from: Date()) - 1
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-            let todayString = dateFormatter.string(from: Date())
-            
-            let response = try await supabaseClient
-                .from("coffee_shops")
-                .select("""
-                    *,
-                    coffee_shop_special_hours!left(
-                        open_time,
-                        close_time
-                    )!special_date.eq.\(todayString),
-                    coffee_shop_hours!left(
-                        open_time,
-                        close_time
-                    )!day_of_week.eq.\(today)
-                """)
-                .execute()
+ 
 
-            let decoder = JSONDecoder()
-            let shops = try decoder.decode([CoffeeShop].self, from: response.data)
-            coffeeShops = shops
-            errorMessage = nil
-        } catch {
-            print("Error decoding coffee shops: \(error)")
-            errorMessage = error.localizedDescription
-        }
-        isLoading = false
-    }
 
-    // Updated function to get coffee shops nearby based on user's location using RPC
-    func getCoffeeShopsNearby(latitude: Double, longitude: Double) async {
-        await MainActor.run {
-            isLoading = true
-        }
-        
-        do {
-            let params = NearbySearchParams(
-                lat: latitude,
-                lon: longitude,
-                radius: 16093.4  // 10mi radius
-            )
-            
-            let response = try await supabaseClient
-                .rpc("get_nearby_coffee_shops", params: params)
-                .execute()
-
-            let decoder = JSONDecoder()
-            let shops = try decoder.decode([CoffeeShop].self, from: response.data)
-            
-            await MainActor.run {
-                self.coffeeShops = shops
-                self.errorMessage = nil
-                self.isLoading = false
-            }
-        } catch {
-            await MainActor.run {
-                print("Error fetching nearby coffee shops: \(error)")
-                self.errorMessage = error.localizedDescription
-                self.isLoading = false
-            }
-        }
-    }
 
      
     // Function to get a specific coffee shop by shop_id using async/await
@@ -183,84 +151,10 @@ class CoffeeShopService: ObservableObject {
         }
     }
 
-    // Function to get all favorite coffee shops by user ID using async/await
-    func getFavoriteCoffeeShops(by userId: String) async throws -> [CoffeeShop] {   
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            let response = try await supabaseClient
-                .from("coffee_shops")
-                .select("*, favorites!inner(*)") // Assuming a join with coffee_shops table
-                .eq("favorites.user_id", value: userId)
-                .execute()
-            
-            let data = response.data
-            
-            let decoder = JSONDecoder()
-            let coffeeShops = try decoder.decode([CoffeeShop].self, from: data)
-            print(coffeeShops)
-            return coffeeShops
-        } catch {
-            print("Error fetching favorite coffee shops: \(error)")
-            throw error
-        }
-    }
+  
 
     // Function to get all coffee shops with favorite status for a user
-    func getCoffeeShopsWithFavoriteStatus(by userId: String) async throws -> [CoffeeShop] {   
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            let calendar = Calendar.current
-            let today = calendar.component(.weekday, from: Date()) - 1
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-            let todayString = dateFormatter.string(from: Date())
-            
-            let response = try await supabaseClient
-                .from("coffee_shops")
-                .select("""
-                    *,
-                    favorites!left(
-                        user_id
-                    ),
-                    coffee_shop_special_hours!left(
-                        open_time,
-                        close_time
-                    )!special_date.eq.\(todayString),
-                    coffee_shop_hours!left(
-                        open_time,
-                        close_time
-                    )!day_of_week.eq.\(today)
-                """)
-                .execute()
-            
-            let decoder = JSONDecoder()
-            let coffeeShopsWithFavorites = try decoder.decode([CoffeeShopWithFavorite].self, from: response.data)
-            
-            let coffeeShops = coffeeShopsWithFavorites.map { shopWithFavorite -> CoffeeShop in
-                var shop = CoffeeShop(from: shopWithFavorite)
-                shop.isFavorite = shopWithFavorite.favorites?.contains { $0.user_id == userId } ?? false
-                
-                // Set hours based on special hours first, then regular hours
-                if let specialHours = shopWithFavorite.specialHours?.first {
-                    shop.todaysHours = ShopHours(openTime: specialHours.openTime, closeTime: specialHours.closeTime)
-                } else if let regularHours = shopWithFavorite.regularHours?.first {
-                    shop.todaysHours = ShopHours(openTime: regularHours.openTime, closeTime: regularHours.closeTime)
-                }
-                // If neither special hours nor regular hours exist, todaysHours remains nil
-                
-                return shop
-            }
-            
-            return coffeeShops
-        } catch {
-            print("Error fetching coffee shops with favorite status: \(error)")
-            throw error
-        }
-    }
+ 
 
     func getReviews(for shopId: String) async throws -> [Review] {
         isLoading = true
@@ -284,6 +178,80 @@ class CoffeeShopService: ObservableObject {
             return reviews
         } catch {
             print("Error fetching reviews: \(error)")
+            throw error
+        }
+    }
+
+    @MainActor
+    func getCoffeeShopsNearby(userId: String, latitude: Double, longitude: Double, radiusInMiles: Double) async throws -> [CoffeeShop] {
+        isLoading = true
+        defer { isLoading = false }
+        
+        let params = ShopSearchParams(
+            userId: userId,
+            lat: latitude,
+            lon: longitude,
+            radius: radiusInMiles * 1609.34
+        )
+        
+        do {
+            let response = try await supabaseClient
+                .rpc("get_coffee_shops_nearby", params: params)
+                .execute()
+            
+            print("Response data: \(String(data: response.data, encoding: .utf8) ?? "No data")")
+            let decoder = JSONDecoder()
+            let shopResponses = try decoder.decode([CoffeeShopResponse].self, from: response.data)
+            
+            let shops = shopResponses.map { response -> CoffeeShop in
+                var shop = response.shopRecord
+                shop.isFavorite = response.isFavorite
+                shop.isOpenNow = response.isOpenNow
+                shop.isClosingSoon = response.isClosingSoon
+                shop.todayHours = response.todayHours
+                shop.distance = response.distance
+                return shop
+            }
+            
+            self.coffeeShops = shops
+            return shops
+        } catch {
+            print("Error fetching nearby coffee shops: \(error)")
+            throw error
+        }
+    }
+
+    @MainActor
+    func getAllFavoriteCoffeeShops(userId: String, latitude: Double, longitude: Double, radiusInMiles: Double) async throws -> [CoffeeShop] {
+        isLoading = true
+        defer { isLoading = false }
+        
+        let params = ShopSearchParams(
+            userId: userId,
+            lat: latitude,
+            lon: longitude,
+            radius: radiusInMiles * 1609.34
+        )
+        
+        do {
+            let response = try await supabaseClient
+                .rpc("get_coffee_shops_favorites", params: params)
+                .execute()
+            
+            let decoder = JSONDecoder()
+            let shopResponses = try decoder.decode([CoffeeShopResponse].self, from: response.data)
+            
+            return shopResponses.map { response -> CoffeeShop in
+                var shop = response.shopRecord
+                shop.isFavorite = response.isFavorite
+                shop.isOpenNow = response.isOpenNow
+                shop.isClosingSoon = response.isClosingSoon
+                shop.todayHours = response.todayHours
+                shop.distance = response.distance
+                return shop
+            }
+        } catch {
+            print("Error fetching favorite coffee shops: \(error)")
             throw error
         }
     }

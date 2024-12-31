@@ -1,45 +1,11 @@
 import Foundation
 
 // Add CoffeeShopWithFavorite struct at the top level
-struct CoffeeShopWithFavorite: Codable {
-    let id: String
-    let name: String
-    let address: String
-    let city: String
-    let state: String
-    let postalCode: String
-    let logoUrl: String?
-    let latitude: Double?
-    let longitude: Double?
-    let averageRating: Double?
-    let coverPhoto: String
-    let tags: [String]
-    let favorites: [FavoriteInfo]?
-    let specialHours: [ShopHours]?
-    let regularHours: [ShopHours]?
+
     
-    struct FavoriteInfo: Codable {
-        let user_id: String
-    }
-    
-    private enum CodingKeys: String, CodingKey {
-        case id = "shop_id"
-        case name
-        case address
-        case city
-        case state
-        case postalCode = "postal_code"
-        case logoUrl = "logo_url"
-        case latitude
-        case longitude
-        case averageRating = "average_rating"
-        case coverPhoto = "cover_photo"
-        case tags
-        case favorites
-        case specialHours = "coffee_shop_special_hours"
-        case regularHours = "coffee_shop_hours"
-    }
-}
+
+
+
 
 struct ShopHours: Codable {
     let openTime: String
@@ -65,7 +31,10 @@ struct CoffeeShop: Identifiable, Codable {
     let coverPhoto: String
     let tags: [String]
     var isFavorite: Bool = false
-    var todaysHours: ShopHours?
+    var isOpenNow: Bool = false
+    var isClosingSoon: Bool = false
+    var todayHours: String?
+    var distance: Double?
     
     private enum CodingKeys: String, CodingKey {
         case id = "shop_id"
@@ -79,8 +48,12 @@ struct CoffeeShop: Identifiable, Codable {
         case longitude
         case averageRating = "average_rating"
         case coverPhoto = "cover_photo"
-        case tags = "tags"
-        case todaysHours = "todays_hours"
+        case tags
+        case isFavorite = "is_favorite"
+        case isOpenNow = "is_open_now"
+        case isClosingSoon = "is_closing_soon"
+        case todayHours = "today_hours"
+        case distance
     }
     
     init?(from dictionary: [String: Any]) {
@@ -95,6 +68,12 @@ struct CoffeeShop: Identifiable, Codable {
               let longitude = dictionary["longitude"] as? Double,
               let averageRating = dictionary["average_rating"] as? Double,
               let coverPhoto = dictionary["coverPhoto"] as? String,
+              let tags = dictionary["tags"] as? [String],   
+              let isFavorite = dictionary["is_favorite"] as? Bool,
+              let isOpenNow = dictionary["is_open_now"] as? Bool,
+              let isClosingSoon = dictionary["is_closing_soon"] as? Bool,
+              let todayHours = dictionary["today_hours"] as? String,
+              let distance = dictionary["distance"] as? Double,
               let tags = dictionary["tags"] as? [String] else {
             return nil
         }
@@ -110,6 +89,11 @@ struct CoffeeShop: Identifiable, Codable {
         self.averageRating = averageRating
         self.coverPhoto = coverPhoto
         self.tags = tags
+        self.isFavorite = isFavorite
+        self.isOpenNow = isOpenNow
+        self.isClosingSoon = isClosingSoon
+        self.todayHours = todayHours
+        self.distance = distance
     }
     
     init(from decoder: Decoder) throws {
@@ -126,23 +110,14 @@ struct CoffeeShop: Identifiable, Codable {
         averageRating = try container.decodeIfPresent(Double.self, forKey: .averageRating)
         coverPhoto = try container.decode(String.self, forKey: .coverPhoto)
         tags = try container.decode([String].self, forKey: .tags)
+        isFavorite = try container.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
+        isOpenNow = try container.decodeIfPresent(Bool.self, forKey: .isOpenNow) ?? false
+        isClosingSoon = try container.decodeIfPresent(Bool.self, forKey: .isClosingSoon) ?? false
+        todayHours = try container.decodeIfPresent(String.self, forKey: .todayHours)
+        distance = try container.decodeIfPresent(Double.self, forKey: .distance)
     }
     
-    init(from withFavorite: CoffeeShopWithFavorite) {
-        self.id = withFavorite.id
-        self.name = withFavorite.name
-        self.address = withFavorite.address
-        self.city = withFavorite.city
-        self.state = withFavorite.state
-        self.postalCode = withFavorite.postalCode
-        self.logoUrl = withFavorite.logoUrl
-        self.latitude = withFavorite.latitude
-        self.longitude = withFavorite.longitude
-        self.averageRating = withFavorite.averageRating
-        self.coverPhoto = withFavorite.coverPhoto
-        self.tags = withFavorite.tags
-        // isFavorite will be set separately
-    }
+   
     
     static func == (lhs: CoffeeShop, rhs: CoffeeShop) -> Bool {
         lhs.id == rhs.id

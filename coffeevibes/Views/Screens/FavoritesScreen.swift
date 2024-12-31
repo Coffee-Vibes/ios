@@ -75,8 +75,22 @@ struct FavoritesScreen: View {
             }
         }
         .background(Color(hex: "FAF7F4"))
+        .onAppear {
+            locationManager.requestLocation()
+        }
         .task {
+            // Wait for location before fetching favorites
+            let timeout = Date().addingTimeInterval(5) // 5 second timeout
+            while locationManager.currentLocation == nil && Date() < timeout {
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+            }
             await fetchFavorites()
+        }
+        // Add location change handler
+        .onChange(of: locationManager.currentLocation) { _ in
+            Task {
+                await fetchFavorites()
+            }
         }
     }
     
@@ -103,11 +117,22 @@ struct FavoritesScreen: View {
             return
         }
         
+        // Get current location
+        guard let location = locationManager.currentLocation else {
+            errorMessage = "Unable to get location"
+            return
+        }
+        
         isLoading = true
         Task {
             do {
                 print("User ID: \(userId)")
-                let fetchedFavorites = try await coffeeShopService.getFavoriteCoffeeShops(by: userId.uuidString)
+                let fetchedFavorites = try await coffeeShopService.getAllFavoriteCoffeeShops(
+                    userId: userId.uuidString,
+                    latitude: location.coordinate.latitude,
+                    longitude: location.coordinate.longitude,
+                    radiusInMiles: 50 // Using a larger radius for favorites
+                )
                 favorites = fetchedFavorites
                 errorMessage = nil
             } catch {

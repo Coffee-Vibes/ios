@@ -133,26 +133,35 @@ struct HomeScreen: View {
             if let userLocation = locationManager.currentLocation {
                 if let userId = authService.currentUser?.id {
                     do {
-                        let shops = try await coffeeShopService.getCoffeeShopsWithFavoriteStatus(by: userId.uuidString)
+                        let shops = try await coffeeShopService.getCoffeeShopsNearby(
+                            userId: userId.uuidString,
+                            latitude: userLocation.coordinate.latitude,
+                            longitude: userLocation.coordinate.longitude,
+                            radiusInMiles: 10
+                        )
                         coffeeShopService.coffeeShops = shops
                     } catch {
-                        print("Error fetching coffee shops: \(error)")
+                        print("Error fetching nearby coffee shops: \(error)")
                     }
-                } else {
-                    await coffeeShopService.getCoffeeShopsNearby(
-                        latitude: userLocation.coordinate.latitude,
-                        longitude: userLocation.coordinate.longitude
-                    )
                 }
             }
         }
         .onChange(of: locationManager.currentLocation) { location in
             if let location = location {
                 Task {
-                    await coffeeShopService.getCoffeeShopsNearby(
-                        latitude: location.coordinate.latitude,
-                        longitude: location.coordinate.longitude
-                    )
+                    if let userId = authService.currentUser?.id {
+                        do {
+                            let shops = try await coffeeShopService.getCoffeeShopsNearby(
+                                userId: userId.uuidString,
+                                latitude: location.coordinate.latitude,
+                                longitude: location.coordinate.longitude,
+                                radiusInMiles: 10
+                            )
+                            coffeeShopService.coffeeShops = shops
+                        } catch {
+                            print("Error fetching nearby coffee shops: \(error)")
+                        }
+                    }
                 }
             }
         }
@@ -225,7 +234,24 @@ struct HomeScreen: View {
                 .foregroundColor(.gray)
             Button("Retry") {
                 Task {
-                    await coffeeShopService.getAllCoffeeShops()
+                    if let location = locationManager.currentLocation,
+                       let userId = authService.currentUser?.id {
+                        do {
+                            let shops = try await coffeeShopService.getCoffeeShopsNearby(
+                                userId: userId.uuidString,
+                                latitude: location.coordinate.latitude,
+                                longitude: location.coordinate.longitude,
+                                radiusInMiles: 10
+                            )
+                            coffeeShopService.coffeeShops = shops
+                        } catch {
+                            print("Error fetching nearby coffee shops: \(error)")
+                        }
+                    } else {
+                        // Show appropriate error message if location or user ID is not available
+                        coffeeShopService.errorMessage = locationManager.currentLocation == nil ? 
+                            "Unable to get location" : "Please log in to continue"
+                    }
                 }
             }
             .padding()
@@ -251,20 +277,7 @@ struct HomeScreen: View {
         }
     }
     
-    private func fetchCoffeeShops() async {
-        if let userId = authService.currentUser?.id {
-            do {
-                let shops = try await coffeeShopService.getCoffeeShopsWithFavoriteStatus(by: userId.uuidString)
-                coffeeShopService.coffeeShops = shops
-            } catch {
-                // Handle error
-                print("Error fetching coffee shops: \(error)")
-            }
-        } else {
-            // If no user is logged in, fetch without favorite status
-            await coffeeShopService.getAllCoffeeShops()
-        }
-    }
+
 }
 
 struct SearchBar: View {

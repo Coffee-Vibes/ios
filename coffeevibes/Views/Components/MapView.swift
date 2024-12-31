@@ -14,13 +14,13 @@ struct MapView: View {
     @State private var userTrackingMode: MapUserTrackingMode = .none
     
     // Add a constant for the default zoom level
-    private let defaultSpan = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03) // Tighter zoom
+    private let defaultSpan = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            if isLoading {
+            if isLoading && coffeeShopService.coffeeShops.isEmpty {
                 LoadingView()
-            } else if let region = region, !coffeeShopService.coffeeShops.isEmpty {
+            } else if let region = region {
                 Map(coordinateRegion: .constant(region),
                     showsUserLocation: true,
                     userTrackingMode: $userTrackingMode,
@@ -94,24 +94,32 @@ struct MapView: View {
         }
         .onChange(of: locationManager.currentLocation) { location in
             if let location = location {
-                withAnimation(.easeInOut(duration: 0.5)) { // Smooth animation for initial location
+                withAnimation(.easeInOut(duration: 0.5)) {
                     region = MKCoordinateRegion(
                         center: location.coordinate,
-                        span: defaultSpan // Use the default span
+                        span: defaultSpan
                     )
                 }
-            }
-        }
-        .task {
-            if let userId = authService.currentUser?.id {
-                do {
-                    let shops = try await coffeeShopService.getCoffeeShopsWithFavoriteStatus(by: userId.uuidString)
-                    coffeeShopService.coffeeShops = shops
-                } catch {
-                    print("Error fetching coffee shops: \(error)")
+                
+                // Fetch coffee shops when location updates
+                Task {
+                    if let userId = authService.currentUser?.id {
+                        do {
+                            let shops = try await coffeeShopService.getCoffeeShopsNearby(
+                                userId: userId.uuidString,
+                                latitude: location.coordinate.latitude,
+                                longitude: location.coordinate.longitude,
+                                radiusInMiles: 10
+                            )
+                            print("Fetched \(shops.count) shops")
+                            await MainActor.run {
+                                coffeeShopService.coffeeShops = shops
+                            }
+                        } catch {
+                            print("Error fetching nearby coffee shops: \(error)")
+                        }
+                    }
                 }
-            } else {
-                await coffeeShopService.getAllCoffeeShops()
             }
         }
     }
@@ -123,7 +131,9 @@ struct MapView: View {
     // MARK: - Helper Methods
     
     private func createAnnotations() -> [MapItem] {
-        var items = coffeeShopService.coffeeShops.map { MapItem(type: .coffeeShop($0)) }
+        var items = coffeeShopService.coffeeShops.map { shop in
+            MapItem(type: .coffeeShop(shop))
+        }
         if let userLocation = locationManager.currentLocation {
             items.append(MapItem(type: .userLocation(userLocation.coordinate)))
         }

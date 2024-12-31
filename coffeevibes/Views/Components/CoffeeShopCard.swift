@@ -87,19 +87,14 @@ struct CoffeeShopCard: View {
                     VStack(alignment: .leading) {
                         Text(shop.name)
                             .h3Style()
-                        if let hours = shop.todaysHours {
-                            Text("\(formatTime(hours.openTime)) - \(formatTime(hours.closeTime))")
-                                .h4Style()
-                        } else {
-                            Text("Hours not available")
-                                .h4Style()
-                        }
+                        Text(shop.todayHours ?? "Hours not available")
+                            .h4Style()
                     }
                 }
                 
                 Spacer()
                 
-                Text(calculatedDistance.isEmpty ? distance : calculatedDistance)
+                Text(formatDistance(shop.distance))
                     .h4MediumStyle()
             }
             .padding(.horizontal)
@@ -173,38 +168,8 @@ struct CoffeeShopCard: View {
         .navigationDestination(isPresented: $showingDetail) {
             CoffeeShopDetailView(coffeeShop: shop)
         }
-        .task {
-            // Check favorite status when view appears
-            await checkFavoriteStatus()
-            calculateDistance()
-        }
-        .onChange(of: locationManager.currentLocation) { _ in
-            calculateDistance()
-        }
-        .onChange(of: shop.id) { _ in
-            Task {
-                await checkFavoriteStatus()
-                calculateDistance()
-            }
-        }
     }
     
-    private func checkFavoriteStatus() async {
-        let userId = authService.currentUser?.id
-        guard let userId = userId else {
-            print("No user ID available")
-            return
-        }
-        
-        do {
-            let favorites = try await coffeeShopService.getFavoriteCoffeeShops(by: userId.uuidString)
-            print("Favorites: \(favorites)")
-            isFavorite = favorites.contains(where: { $0.id == shop.id })
-            print("Is favorite: \(isFavorite)")
-        } catch {
-            print("Error checking favorite status: \(error)")
-        }
-    }
     
     // Update favorite button action to handle optional userId
     private func toggleFavorite() async {
@@ -228,20 +193,7 @@ struct CoffeeShopCard: View {
         }
     }
     
-    private func calculateDistance() {
-        guard let latitude = shop.latitude,
-              let longitude = shop.longitude else {
-            calculatedDistance = ""
-            return
-        }
-        
-        let shopLocation = CLLocation(latitude: latitude, longitude: longitude)
-        if let distance = locationManager.calculateDistance(to: shopLocation) {
-            calculatedDistance = String(format: "%.1f miles away", distance)
-        } else {
-            calculatedDistance = ""
-        }
-    }
+
     
     private var shopTags: some View {
         HStack {
@@ -269,16 +221,10 @@ struct CoffeeShopCard: View {
             return Color(hex: "E8F0FC")
         }
     }
-    
-    private func formatTime(_ timeString: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss"
-        
-        guard let date = formatter.date(from: timeString) else {
-            return timeString
-        }
-        
-        formatter.dateFormat = "h:mm a"
-        return formatter.string(from: date)
+
+    private func formatDistance(_ distance: Double?) -> String {
+        guard let distance = distance else { return "" }
+        return String(format: "%.1f mi", distance) 
     }
+
 } 

@@ -122,14 +122,14 @@ struct ExploreScreen: View {
     private func fetchCoffeeShops() async {
         if let userId = authService.currentUser?.id {
             do {
-                let shops = try await coffeeShopService.getCoffeeShopsWithFavoriteStatus(by: userId.uuidString)
-                coffeeShopService.coffeeShops = shops
+              //  let shops = try await coffeeShopService.getCoffeeShopsWithFavoriteStatus(by: userId.uuidString)
+              //  coffeeShopService.coffeeShops = shops
             } catch {
                 // Handle error
                 print("Error fetching coffee shops: \(error)")
             }
         } else {
-            await coffeeShopService.getAllCoffeeShops()
+           // await coffeeShopService.getAllCoffeeShops()
         }
     }
 }
