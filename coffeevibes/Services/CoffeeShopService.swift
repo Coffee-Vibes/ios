@@ -22,9 +22,25 @@ class CoffeeShopService: ObservableObject {
     func getAllCoffeeShops() async {
         isLoading = true
         do {
+            let calendar = Calendar.current
+            let today = calendar.component(.weekday, from: Date()) - 1
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let todayString = dateFormatter.string(from: Date())
+            
             let response = try await supabaseClient
                 .from("coffee_shops")
-                .select()
+                .select("""
+                    *,
+                    coffee_shop_special_hours!left(
+                        open_time,
+                        close_time
+                    )!special_date.eq.\(todayString),
+                    coffee_shop_hours!left(
+                        open_time,
+                        close_time
+                    )!day_of_week.eq.\(today)
+                """)
                 .execute()
 
             let decoder = JSONDecoder()
@@ -197,23 +213,45 @@ class CoffeeShopService: ObservableObject {
         defer { isLoading = false }
         
         do {
+            let calendar = Calendar.current
+            let today = calendar.component(.weekday, from: Date()) - 1
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let todayString = dateFormatter.string(from: Date())
+            
             let response = try await supabaseClient
                 .from("coffee_shops")
                 .select("""
                     *,
                     favorites!left(
                         user_id
-                    )
+                    ),
+                    coffee_shop_special_hours!left(
+                        open_time,
+                        close_time
+                    )!special_date.eq.\(todayString),
+                    coffee_shop_hours!left(
+                        open_time,
+                        close_time
+                    )!day_of_week.eq.\(today)
                 """)
                 .execute()
             
             let decoder = JSONDecoder()
             let coffeeShopsWithFavorites = try decoder.decode([CoffeeShopWithFavorite].self, from: response.data)
             
-            // Convert to CoffeeShop objects with isFavorite status
             let coffeeShops = coffeeShopsWithFavorites.map { shopWithFavorite -> CoffeeShop in
                 var shop = CoffeeShop(from: shopWithFavorite)
                 shop.isFavorite = shopWithFavorite.favorites?.contains { $0.user_id == userId } ?? false
+                
+                // Set hours based on special hours first, then regular hours
+                if let specialHours = shopWithFavorite.specialHours?.first {
+                    shop.todaysHours = ShopHours(openTime: specialHours.openTime, closeTime: specialHours.closeTime)
+                } else if let regularHours = shopWithFavorite.regularHours?.first {
+                    shop.todaysHours = ShopHours(openTime: regularHours.openTime, closeTime: regularHours.closeTime)
+                }
+                // If neither special hours nor regular hours exist, todaysHours remains nil
+                
                 return shop
             }
             

@@ -15,6 +15,8 @@ struct CoffeeShopWithFavorite: Codable {
     let coverPhoto: String
     let tags: [String]
     let favorites: [FavoriteInfo]?
+    let specialHours: [ShopHours]?
+    let regularHours: [ShopHours]?
     
     struct FavoriteInfo: Codable {
         let user_id: String
@@ -34,6 +36,18 @@ struct CoffeeShopWithFavorite: Codable {
         case coverPhoto = "cover_photo"
         case tags
         case favorites
+        case specialHours = "coffee_shop_special_hours"
+        case regularHours = "coffee_shop_hours"
+    }
+}
+
+struct ShopHours: Codable {
+    let openTime: String
+    let closeTime: String
+    
+    private enum CodingKeys: String, CodingKey {
+        case openTime = "open_time"
+        case closeTime = "close_time"
     }
 }
 
@@ -51,6 +65,7 @@ struct CoffeeShop: Identifiable, Codable {
     let coverPhoto: String
     let tags: [String]
     var isFavorite: Bool = false
+    var todaysHours: ShopHours?
     
     private enum CodingKeys: String, CodingKey {
         case id = "shop_id"
@@ -65,6 +80,7 @@ struct CoffeeShop: Identifiable, Codable {
         case averageRating = "average_rating"
         case coverPhoto = "cover_photo"
         case tags = "tags"
+        case todaysHours = "todays_hours"
     }
     
     init?(from dictionary: [String: Any]) {

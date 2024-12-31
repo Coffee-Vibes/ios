@@ -87,8 +87,13 @@ struct CoffeeShopCard: View {
                     VStack(alignment: .leading) {
                         Text(shop.name)
                             .h3Style()
-                        Text("8am - 9pm - See Hours")
-                            .h4Style()
+                        if let hours = shop.todaysHours {
+                            Text("\(formatTime(hours.openTime)) - \(formatTime(hours.closeTime))")
+                                .h4Style()
+                        } else {
+                            Text("Hours not available")
+                                .h4Style()
+                        }
                     }
                 }
                 
@@ -263,5 +268,17 @@ struct CoffeeShopCard: View {
         default:
             return Color(hex: "E8F0FC")
         }
+    }
+    
+    private func formatTime(_ timeString: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        
+        guard let date = formatter.date(from: timeString) else {
+            return timeString
+        }
+        
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: date)
     }
 } 

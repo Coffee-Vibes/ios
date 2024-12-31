@@ -249,7 +249,7 @@ private struct SelectedCoffeeShopView: View {
                 onViewDetails: onNavigateToDetail
             )
             .padding(.horizontal)
-            .padding(.bottom, 80)
+            .padding(.bottom, 115)
         }
        // .background(Color(hex: "FAF7F4"))
        // .cornerRadius(16, corners: [.topLeft, .topRight])
