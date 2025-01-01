@@ -1,6 +1,7 @@
 import Foundation
 import Supabase
 import AuthenticationServices
+import CryptoKit
 
 @MainActor
 class AuthenticationService: ObservableObject {
@@ -109,6 +110,7 @@ class AuthenticationService: ObservableObject {
             
             self.registrationComplete = false
         } catch {
+            print("❌ Error during sign up: \(error)")  // Add error logging
             throw error
         }
     }
@@ -176,53 +178,130 @@ class AuthenticationService: ObservableObject {
         )
     }
     
-    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents? = nil, email: String? = nil) async throws {
+    struct AuthResponse {
+        let user: User
+        let session: Session
+        
+        init(session: Session) {
+            self.user = session.user
+            self.session = session
+        }
+    }
+    
+    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents? = nil, email: String? = nil) async throws -> AuthResponse {
         do {
-            let response = try await supabase.auth.signInWithIdToken(
+            let session = try await supabase.auth.signInWithIdToken(
                 credentials: .init(
                     provider: .apple,
                     idToken: idToken,
                     nonce: nonce
                 )
             )
-           
-            // Check if user_profiles record exists
-            let existingProfile = try? await supabase
-                .from("user_profiles")
-                .select()
-                .eq("user_id", value: response.user.id)
-                .single()
-                .execute()
             
-            if existingProfile == nil {
-                // Create new profile with default name
-                let userRecord = UserRecord(
-                    id: response.user.id,
-                    email: response.user.email ?? "",
-                    name: "Coffee Lover", // Default name that user can update later
-                    created_at: ISO8601DateFormatter().string(from: Date())
-                )
-
-                do {
-                    let insertResponse = try await supabase
-                        .from("user_profiles")
-                        .insert(userRecord)
-                        .execute()
-                } catch {
-                    print("❌ Error creating user profile: \(error)")
-                    // Continue with sign in even if profile creation fails
+            self.currentUser = session.user
+            
+            // Use existing method to check for profile
+            let hasProfile = try await checkUserProfileExists(userId: session.user.id)
+            print("🍎 hasProfile \(hasProfile)")
+            
+            if !hasProfile {
+                // Store info for profile creation using Supabase user's email
+                UserDefaults.standard.set(session.user.email, forKey: "pending_user_email")
+                
+                // Get name from Apple credentials or use default
+                let userName = if let givenName = fullName?.givenName,
+                                let familyName = fullName?.familyName {
+                    "\(givenName) \(familyName)"
+                } else {
+                    "Coffee Lover"
+                }
+                UserDefaults.standard.set(userName, forKey: "pending_user_name")
+                
+                // Set registration as incomplete since we need to verify email
+                self.registrationComplete = false
+                UserDefaults.standard.set(false, forKey: "registration_complete")
+                
+                // Send OTP verification email using Supabase user's email
+                if let userEmail = session.user.email {
+                    try await supabase.auth.signInWithOTP(
+                        email: userEmail,
+                        shouldCreateUser: false
+                    )
                 }
             } else {
-                print("🍎 Existing profile found, skipping profile creation")
+                // User has profile, complete registration
+                self.registrationComplete = true
+                UserDefaults.standard.set(true, forKey: "registration_complete")
             }
             
-            self.currentUser = response.user
-            self.registrationComplete = true
-            UserDefaults.standard.set(true, forKey: "registration_complete")
-            
-            KeychainService.shared.saveToken(response.accessToken)
-         } catch {
+            KeychainService.shared.saveToken(session.accessToken)
+            return AuthResponse(session: session)
+        } catch {
             print("❌ Error during Apple Sign In: \(error)")
+            throw error
+        }
+    }
+    
+    func generateNonce(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: [Character] =
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+        
+        while remainingLength > 0 {
+            let randoms: [UInt8] = (0 ..< 16).map { _ in
+                var random: UInt8 = 0
+                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+                if errorCode != errSecSuccess {
+                    fatalError(
+                        "Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)"
+                    )
+                }
+                return random
+            }
+            
+            randoms.forEach { random in
+                if remainingLength == 0 {
+                    return
+                }
+                
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+        
+        return result
+    }
+    
+    func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        let hashString = hashedData.compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+        
+        return hashString
+    }
+    
+    func checkUserProfileExists(userId: UUID) async throws -> Bool {
+        do {
+            let response = try await supabase
+                .from("user_profiles")
+                .select("user_id")  // Only select what we need
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+            
+            // Check if we got any results
+            if let count = response.count {
+                return count > 0
+            }
+            print("❌ No user profile found for user \(userId)")
+            return false
+        } catch {
+            print("❌ Error checking user profile: \(error)")
             throw error
         }
     }

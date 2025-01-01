@@ -34,6 +34,13 @@ public struct CreateProfileView: View {
         "Group hangouts"
     ]
     
+    private struct ProfileUpdateData: Encodable {
+        let name: String
+        let bio: String
+        let preferred_vibes: String
+        let is_notifications_enabled: String
+    }
+    
     public var body: some View {
         ScrollView {
             VStack(spacing: 12) {
@@ -189,6 +196,10 @@ public struct CreateProfileView: View {
         .background(AppColor.background)
         .navigationBarBackButtonHidden()
         .onAppear {
+            print("🔍 CreateProfileView appeared")
+            print("🔍 Current authService.currentUser?.id: \(authService.currentUser?.id.uuidString ?? "nil")")
+            userId = authService.currentUser?.id
+            print("🔍 Set userId to: \(userId?.uuidString ?? "nil")")
             guard let userName = UserDefaults.standard.string(forKey: "pending_user_name") else { return }
             name = userName
         }
@@ -255,31 +266,55 @@ public struct CreateProfileView: View {
     }
     
     private func saveProfile() {
+        guard !name.isEmpty else {
+            uploadError = "Name is required"
+            return
+        }
+        
         isLoading = true
+        
         Task {
             do {
-                let photoUrl = try await uploadProfilePhoto()
+                print("🔍 Starting profile save...")
+                print("🔍 Current user ID: \(userId?.uuidString ?? "nil")")
+                print("🔍 Name to save: \(name)")
+                
+                // Convert preferences to array string
                 let arrayString = "{" + Array(selectedPreferences).map { "\"\($0)\"" }.joined(separator: ",") + "}"
+                print("🔍 Preferences to save: \(arrayString)")
+
+                // Create properly typed update data
+                let updateData = ProfileUpdateData(
+                    name: name,
+                    bio: bio,
+                    preferred_vibes: arrayString,
+                    is_notifications_enabled: String(notificationsEnabled)
+                )
+                print("🔍 Update data prepared: \(updateData)")
 
                 // Save profile data to Supabase
-                try await supabase.database
+                let response = try await supabase.database
                     .from("user_profiles")
-                    .update([
-                        "name": name,
-                        "bio": bio,
-                        "profile_photo": photoUrl,
-                        "preferred_vibes": arrayString,
-                        "is_notifications_enabled": String(notificationsEnabled)
-                    ])
+                    .update(updateData)
                     .eq("user_id", value: userId?.uuidString ?? "")
                     .execute()
                 
+                print("🔍 Supabase response: \(response)")
+                
                 await MainActor.run {
                     isLoading = false
+                    print("✅ Profile updated successfully")
                     UserDefaults.standard.set(true, forKey: "registration_complete")
                     authService.registrationComplete = true
                 }
             } catch {
+                print("❌ Error saving profile: \(error)")
+                print("❌ Error details: \(error.localizedDescription)")
+                if let supabaseError = error as? PostgrestError {
+                    print("❌ Supabase error code: \(supabaseError.code ?? "none")")
+                    print("❌ Supabase error message: \(supabaseError.message)")
+                }
+                
                 await MainActor.run {
                     isLoading = false
                     uploadError = error.localizedDescription

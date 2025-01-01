@@ -23,6 +23,7 @@ struct SignUpView: View {
     @State private var passwordError: String?
     @State private var loginError: String?
     @State private var termsError = false
+    @State private var currentNonce: String?
     let onEvent: (Event) -> Void
     
     var body: some View {
@@ -146,30 +147,33 @@ struct SignUpView: View {
                             }
                             
                             // Social Login Options
-                            // VStack(spacing: 16) {
-                            //     SignInWithAppleButton(.signUp) { request in
-                            //         request.requestedScopes = [.email, .fullName]
-                            //     } onCompletion: { result in
-                            //         handleAppleSignIn(result)
-                            //     }
-                            //     .signInWithAppleButtonStyle(.white)
-                            //     .frame(height: 44)
-                            //     .overlay(
-                            //         RoundedRectangle(cornerRadius: 8)
-                            //             .stroke(Color(hex: "D0D5DD"), lineWidth: 1)
-                            //     )
+                            VStack(spacing: 16) {
+                                SignInWithAppleButton(.signUp) { request in
+                                    let nonce = authService.generateNonce()
+                                    currentNonce = nonce
+                                    request.requestedScopes = [.email, .fullName]
+                                    request.nonce = authService.sha256(nonce)
+                                } onCompletion: { result in
+                                    handleAppleSignIn(result)
+                                }
+                                .signInWithAppleButtonStyle(.white)
+                                .frame(height: 44)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color(hex: "D0D5DD"), lineWidth: 1)
+                                )
                                 
-                            //     Button(action: handleGoogleSignIn) {
-                            //         HStack {
-                            //             Image("social_google")
-                            //                 .resizable()
-                            //                 .frame(width: 20, height: 20)
-                            //             Text("Continue with Google")
-                            //                 .font(.system(size: 16, weight: .semibold))
-                            //         }
-                            //     }
-                            //     .buttonStyle(SocialButtonStyle())
-                            // }
+                                Button(action: handleGoogleSignIn) {
+                                    HStack {
+                                        Image("social_google")
+                                            .resizable()
+                                            .frame(width: 20, height: 20)
+                                        Text("Continue with Google")
+                                            .font(.system(size: 16, weight: .semibold))
+                                    }
+                                }
+                                .buttonStyle(SocialButtonStyle())
+                            }
                         }
                         .padding(24)
                     }
@@ -268,10 +272,42 @@ struct SignUpView: View {
     private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
         switch result {
         case .success(let authorization):
-            if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                print("Successfully signed up with Apple: \(credential.user)")
+            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+               let nonce = currentNonce,
+               let identityToken = appleIDCredential.identityToken,
+               let tokenString = String(data: identityToken, encoding: .utf8) {
+                
+                isLoading = true
+                Task {
+                    do {
+                        let signInResult = try await authService.signInWithApple(
+                            idToken: tokenString,
+                            nonce: nonce,
+                            fullName: appleIDCredential.fullName,
+                            email: appleIDCredential.email
+                        )
+                        
+                        await MainActor.run {
+                            isLoading = false
+                            if authService.registrationComplete {
+                                // User has profile, they're fully registered
+                                UserDefaults.standard.set(true, forKey: "registration_complete")
+                            } else {
+                                // New user needs to verify email
+                                self.onEvent(.optCode(email: signInResult.user.email ?? ""))
+                            }
+                        }
+                    } catch {
+                        await MainActor.run {
+                            isLoading = false
+                            loginError = error.localizedDescription
+                            authService.authError = error.localizedDescription
+                        }
+                    }
+                }
             }
         case .failure(let error):
+            loginError = error.localizedDescription
             authService.authError = error.localizedDescription
         }
     }
