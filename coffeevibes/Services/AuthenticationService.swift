@@ -188,7 +188,7 @@ class AuthenticationService: ObservableObject {
         }
     }
     
-    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents? = nil, email: String? = nil) async throws -> AuthResponse {
+    func signInWithApple(idToken: String, nonce: String, isSignUp: Bool, fullName: PersonNameComponents? = nil, email: String? = nil) async throws -> AuthResponse {
         do {
             let session = try await supabase.auth.signInWithIdToken(
                 credentials: .init(
@@ -200,11 +200,12 @@ class AuthenticationService: ObservableObject {
             
             self.currentUser = session.user
             
-            // Use existing method to check for profile
+            // Check if user has a profile
             let hasProfile = try await checkUserProfileExists(userId: session.user.id)
             print("🍎 hasProfile \(hasProfile)")
             
             if !hasProfile {
+                // This is a new user (sign up flow)
                 // Store info for profile creation using Supabase user's email
                 UserDefaults.standard.set(session.user.email, forKey: "pending_user_email")
                 
@@ -217,19 +218,21 @@ class AuthenticationService: ObservableObject {
                 }
                 UserDefaults.standard.set(userName, forKey: "pending_user_name")
                 
-                // Set registration as incomplete since we need to verify email
+                // Set registration as incomplete since profile needs to be created
                 self.registrationComplete = false
                 UserDefaults.standard.set(false, forKey: "registration_complete")
                 
-                // Send OTP verification email using Supabase user's email
-                if let userEmail = session.user.email {
-                    try await supabase.auth.signInWithOTP(
-                        email: userEmail,
-                        shouldCreateUser: false
-                    )
+                if (isSignUp) {
+                    // Send OTP verification email using Supabase user's email
+                    if let userEmail = session.user.email {
+                        try await supabase.auth.signInWithOTP(
+                            email: userEmail,
+                            shouldCreateUser: false
+                        )
+                }
                 }
             } else {
-                // User has profile, complete registration
+                // Existing user (sign in flow)
                 self.registrationComplete = true
                 UserDefaults.standard.set(true, forKey: "registration_complete")
             }

@@ -283,6 +283,7 @@ struct SignUpView: View {
                         let signInResult = try await authService.signInWithApple(
                             idToken: tokenString,
                             nonce: nonce,
+                            isSignUp: true,
                             fullName: appleIDCredential.fullName,
                             email: appleIDCredential.email
                         )

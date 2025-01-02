@@ -253,6 +253,7 @@ struct LoginView: View {
                             try await authService.signInWithApple(
                                 idToken: tokenString,
                                 nonce: nonce,
+                                isSignUp: false,
                                 fullName: appleIDCredential.fullName,
                                 email: appleIDCredential.email
                             )
