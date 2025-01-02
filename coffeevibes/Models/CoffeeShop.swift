@@ -20,6 +20,8 @@ struct ShopHours: Codable {
 struct CoffeeShop: Identifiable, Codable {
     let id: String
     let name: String
+    let description: String?
+    let summary: String?
     let address: String
     let city: String
     let state: String
@@ -35,10 +37,14 @@ struct CoffeeShop: Identifiable, Codable {
     var isClosingSoon: Bool = false
     var todayHours: String?
     var distance: Double?
+    var websiteUrl: String?
+    var phone: String?
     
     private enum CodingKeys: String, CodingKey {
         case id = "shop_id"
         case name
+        case description
+        case summary
         case address
         case city
         case state
@@ -54,6 +60,8 @@ struct CoffeeShop: Identifiable, Codable {
         case isClosingSoon = "is_closing_soon"
         case todayHours = "today_hours"
         case distance
+        case websiteUrl = "website_url"
+        case phone
     }
     
     init?(from dictionary: [String: Any]) {
@@ -74,11 +82,15 @@ struct CoffeeShop: Identifiable, Codable {
               let isClosingSoon = dictionary["is_closing_soon"] as? Bool,
               let todayHours = dictionary["today_hours"] as? String,
               let distance = dictionary["distance"] as? Double,
-              let tags = dictionary["tags"] as? [String] else {
+              let tags = dictionary["tags"] as? [String],
+              let websiteUrl = dictionary["website_url"] as? String,
+              let phone = dictionary["phone"] as? String else {
             return nil
         }
         self.id = id
         self.name = name
+        self.description = dictionary["description"] as? String
+        self.summary = dictionary["summary"] as? String
         self.address = address
         self.city = city
         self.state = state
@@ -94,12 +106,16 @@ struct CoffeeShop: Identifiable, Codable {
         self.isClosingSoon = isClosingSoon
         self.todayHours = todayHours
         self.distance = distance
+        self.websiteUrl = websiteUrl
+        self.phone = phone
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
-        name = try container.decode(String.self, forKey: .name)
+        name = try container.decode(String.self, forKey: .name) 
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        summary = try container.decodeIfPresent(String.self, forKey: .summary)
         address = try container.decode(String.self, forKey: .address)
         city = try container.decode(String.self, forKey: .city)
         state = try container.decode(String.self, forKey: .state)
@@ -115,6 +131,8 @@ struct CoffeeShop: Identifiable, Codable {
         isClosingSoon = try container.decodeIfPresent(Bool.self, forKey: .isClosingSoon) ?? false
         todayHours = try container.decodeIfPresent(String.self, forKey: .todayHours)
         distance = try container.decodeIfPresent(Double.self, forKey: .distance)
+        websiteUrl = try container.decodeIfPresent(String.self, forKey: .websiteUrl)
+        phone = try container.decodeIfPresent(String.self, forKey: .phone)
     }
     
    

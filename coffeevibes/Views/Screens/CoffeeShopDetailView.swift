@@ -1,5 +1,6 @@
 import SwiftUI
 import Supabase
+import Foundation
 
 struct CoffeeShopDetailView: View {
     let coffeeShop: CoffeeShop
@@ -17,41 +18,58 @@ struct CoffeeShopDetailView: View {
     @State private var reviewsErrorMessage: String?
     @Environment(\.dismiss) private var dismiss
     @State private var showingCard = true
+    @State private var scrollOffset: CGFloat = 0
+    private let maxHeaderHeight: CGFloat = 300
+    private let minHeaderHeight: CGFloat = 200
     
     private let supabaseClient = SupabaseConfig.client
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header Image and Back Button
+            GeometryReader { geometry in
+                let offset = geometry.frame(in: .global).minY
+                let headerHeight = max(minHeaderHeight, minHeaderHeight + offset)
+                
+                // Header Image
                 ZStack(alignment: .top) {
-                    AsyncImage(url: URL(string: coffeeShop.coverPhoto)) { phase in
+                    AsyncImage(url: GooglePlacesService.shared.getPhotoURL(reference: coffeeShop.coverPhoto)) { phase in
                         switch phase {
                         case .empty:
-                            ProgressView() // Show a loading indicator
+                            ProgressView()
                         case .success(let image):
                             image
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .scaledToFill()
+                                .frame(height: headerHeight)
+                                .clipped()
+                                .overlay(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            .black.opacity(0.7),
+                                            .black.opacity(0.3),
+                                            .clear
+                                        ]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .offset(y: -offset)
                         case .failure:
-                            Image("default_coffee_cover") // Fallback image on error
+                            Image("onboard1")
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .scaledToFill()
+                                .frame(height: headerHeight)
+                                .clipped()
+                                .offset(y: -offset)
                         @unknown default:
-                            Image("default_coffee_cover") // Fallback for unknown cases
+                            Image("onboard1")
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .scaledToFill()
+                                .frame(height: headerHeight)
+                                .clipped()
+                                .offset(y: -offset)
                         }
                     }
-                    .frame(height: 240)
-                    .clipped()
-                    .overlay(
-                        LinearGradient(
-                            colors: [.black.opacity(0.4), .clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
                     
                     // Navigation Bar
                     HStack {
@@ -59,7 +77,7 @@ struct CoffeeShopDetailView: View {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
                                 .padding(12)
-                                .background(Color.black.opacity(0.3))
+                                .background(Color.black.opacity(0.5))
                                 .clipShape(Circle())
                         }
                         
@@ -69,102 +87,212 @@ struct CoffeeShopDetailView: View {
                             Image(systemName: "square.and.arrow.up")
                                 .foregroundColor(.white)
                                 .padding(12)
-                                .background(Color.black.opacity(0.3))
+                                .background(Color.black.opacity(0.5))
                                 .clipShape(Circle())
                         }
                     }
-                    .padding(.top, 40)
+                    .padding(.top, 44)
                     .padding(.horizontal)
                 }
-                
-                // Content
-                VStack(alignment: .leading, spacing: 24) {
-                    // Shop Info
-                    VStack(alignment: .leading, spacing: 8) {
+            }
+            .frame(height: minHeaderHeight)
+            
+            // Content
+            VStack(alignment: .leading, spacing: 24) {
+                // Shop Info
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(coffeeShop.name)
-                            .font(.title)
-                            .fontWeight(.bold)
-                        
-                        Text("Updated: 1 min ago")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .t1Style()
+                        Text(coffeeShop.todayHours ?? "Hours not available")
+                            .t2Style()
                     }
                     
-                    // Vibe Tags
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(coffeeShop.tags, id: \.self) { tag in
-                                CoffeeTagView(
-                                    text: tag,
-                                    color: tagColor(for: tag)
-                                )
-                            }
-                        }
-                    }
+                    Spacer()
                     
-                    // Current Vibe Check
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Current Vibe Check")
-                            .font(.headline)
-                        
-                        HStack {
-                            VibeIndicator(
-                                label: "Quiet",
-                                color: .green,
-                                progress: 0.8
-                            )
-                            
-                            Spacer()
-                            
-                            VibeIndicator(
-                                label: "Moderate",
-                                color: .orange,
-                                progress: 0.5
-                            )
-                            
-                            Spacer()
-                            
-                            VibeIndicator(
-                                label: "Crowded",
-                                color: .red,
-                                progress: 0.2
-                            )
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    // About Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("About \(coffeeShop.name)")
-                            .font(.headline)
-                        
-                        Text("Nestled in the heart of the city, \(coffeeShop.name) offers a serene escape with cozy seating, artisanal coffee, and a welcoming ambiance. Whether you're here to work, relax, or socialize, we've got you covered!")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    // Popular Items
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Text("Popular Items")
-                                .font(.headline)
-                            Spacer()
-                            Button("View Full Menu") {
-                                // Handle view menu
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(Color(hex: "B27046"))
-                        }
-                        
-                        // Menu items grid would go here
+                    if let distance = coffeeShop.distance {
+                        Text(String(format: "%.1f miles away", distance))
+                            .h4MediumStyle()
                     }
                 }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(20, corners: [.topLeft, .topRight])
-                .offset(y: -20)
+                
+                // Action Buttons
+                HStack(spacing: 12) {
+                    if let website = coffeeShop.websiteUrl {
+                        ActionIconButton(
+                            icon: "globe",
+                            action: {
+                                if let url = URL(string: website) {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                        )
+                    }
+                    
+                    if let phone = coffeeShop.phone {
+                        ActionIconButton(
+                            icon: "phone",
+                            action: {
+                                #if targetEnvironment(simulator)
+                                print("Phone calls not supported in simulator")
+                                #else
+                                let formattedPhone = phone.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+                                let phoneUrl = "tel://" + formattedPhone
+                                
+                                if let url = URL(string: phoneUrl),
+                                   UIApplication.shared.canOpenURL(url) {
+                                    UIApplication.shared.open(url)
+                                }
+                                #endif
+                            }
+                        )
+                    }
+                    
+                    ActionIconButton(
+                        icon: "location",
+                        action: {
+                            if let encodedAddress = coffeeShop.address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                               let url = URL(string: "maps://?address=\(encodedAddress)") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                    )
+                    
+                    ActionIconButton(
+                        icon: "square.and.arrow.up",
+                        action: {
+                            let shopInfo = """
+                            Check out \(coffeeShop.name)!
+                            Address: \(coffeeShop.address)
+                            Hours: \(coffeeShop.todayHours ?? "Hours not available")
+                            """
+                            let activityVC = UIActivityViewController(
+                                activityItems: [shopInfo],
+                                applicationActivities: nil
+                            )
+                            
+                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let window = windowScene.windows.first,
+                               let rootVC = window.rootViewController {
+                                rootVC.present(activityVC, animated: true)
+                            }
+                        }
+                    )
+                }
+                .padding(.horizontal)
+                
+                // Vibe Tags
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(coffeeShop.tags, id: \.self) { tag in
+                            CoffeeTagView(
+                                text: tag,
+                                color: tagColor(for: tag)
+                            )
+                        }
+                    }
+                }
+                
+                // About Section
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("About \(coffeeShop.name)")
+                        .font(.headline)
+                    
+                    Text(coffeeShop.description ?? coffeeShop.summary ?? "Nestled in the heart of the city, \(coffeeShop.name) offers a serene escape with cozy seating, artisanal coffee, and a welcoming ambiance. Whether you're here to work, relax, or socialize, we've got you covered!")
+                        .t2Style()
+                }
+                
+                // Contact Info
+                VStack(alignment: .leading, spacing: 12) {
+                    if let website = coffeeShop.websiteUrl {
+                        Button(action: {
+                            if let url = URL(string: website) {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "globe")
+                                    .frame(width: 24)
+                                Text(website)
+                                    .t2Style()
+                                Spacer()
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Divider()
+                            .padding(.vertical, 4)
+                    }
+                    
+                    if let phone = coffeeShop.phone {
+                        Button(action: {
+                            #if targetEnvironment(simulator)
+                            print("Phone calls not supported in simulator")
+                            #else
+                            let formattedPhone = phone.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+                            let phoneUrl = "tel://" + formattedPhone
+                            
+                            if let url = URL(string: phoneUrl),
+                               UIApplication.shared.canOpenURL(url) {
+                                UIApplication.shared.open(url)
+                            }
+                            #endif
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "phone")
+                                    .frame(width: 24)
+                                Text(phone)
+                                    .t2Style()
+                                Spacer()
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Divider()
+                            .padding(.vertical, 4)
+                    }
+                    
+                    Button(action: {
+                        if let encodedAddress = coffeeShop.address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                           let url = URL(string: "maps://?address=\(encodedAddress)") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "location")
+                                .frame(width: 24)
+                            Text(coffeeShop.address)
+                                .t2Style()
+                                .multilineTextAlignment(.leading)
+                            Spacer()
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                .foregroundColor(AppColor.foreground)
+                
+                // Popular Items
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Text("Popular Items")
+                            .font(.headline)
+                        Spacer()
+                        Button("View Full Menu") {
+                            // Handle view menu
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(Color(hex: "B27046"))
+                    }
+                    
+                    // Menu items grid would go here
+                }
             }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(20, corners: [.topLeft, .topRight])
+            .offset(y: -20)
         }
+        .coordinateSpace(name: "scroll")
         .navigationBarHidden(true)
         .ignoresSafeArea()
         .task {
@@ -344,8 +472,24 @@ struct VibeIndicator: View {
     }
 }
 
-#Preview {
-    NavigationView {
-//         CoffeeShopDetailView(coffeeShop: CoffeeShop.mockCoffeeShops[0])
+struct ActionIconButton: View {
+    let icon: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .foregroundColor(.white)
+                .frame(width: 24, height: 24)
+                .padding(12)
+                .background(AppColor.primary)
+                .cornerRadius(8)
+        }
     }
-} 
+}
+
+// #Preview {
+//     NavigationView {
+// //         CoffeeShopDetailView(coffeeShop: CoffeeShop.mockCoffeeShops[0])
+//     }
+// } 
