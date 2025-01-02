@@ -9,7 +9,12 @@ struct CoffeeTagView: View {
             .font(.caption)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(color)
+            .background(AppColor.secondary)
+            .foregroundColor(AppColor.primary)
             .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(AppColor.primary, lineWidth: 1)
+            )
     }
 } 

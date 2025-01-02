@@ -14,35 +14,9 @@ struct FavoritesScreen: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 16) {
-                // Categories ScrollView
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        Button(action: {}) {
-                            Image(systemName: "plus")
-                                .foregroundColor(AppColor.primary)
-                                .padding()
-                                .background(Color(.systemBackground))
-                                .clipShape(Circle())
-                                .overlay(
-                                    Circle()
-                                        .stroke(AppColor.primary, lineWidth: 1)
-                                )
-                        }
-                        
-                        CategoryPill(title: "Good Vibes", icon: "hand.thumbsup.fill", isSelected: true)
-                        CategoryPill(title: "Has WiFi", icon: "wifi", isSelected: false)
-                        CategoryPill(title: "Quiet", icon: "speaker.slash.fill", isSelected: false)
-                    }
-                    .padding(.horizontal)
-                }
                 
                 // Lists Section
                 VStack(alignment: .leading) {
-                    Text("Lists")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(Color(hex: "1D1612"))
-                        .padding(.horizontal)
-                    
                     ScrollView {
                         LazyVStack(spacing: 16) {
                             if isLoading {

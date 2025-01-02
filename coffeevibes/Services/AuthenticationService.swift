@@ -205,36 +205,38 @@ class AuthenticationService: ObservableObject {
             print("🍎 hasProfile \(hasProfile)")
             
             if !hasProfile {
-                // This is a new user (sign up flow)
-                // Store info for profile creation using Supabase user's email
-                UserDefaults.standard.set(session.user.email, forKey: "pending_user_email")
-                
-                // Get name from Apple credentials or use default
-                let userName = if let givenName = fullName?.givenName,
-                                let familyName = fullName?.familyName {
-                    "\(givenName) \(familyName)"
-                } else {
-                    "Coffee Lover"
-                }
-                UserDefaults.standard.set(userName, forKey: "pending_user_name")
-                
-                // Set registration as incomplete since profile needs to be created
-                self.registrationComplete = false
-                UserDefaults.standard.set(false, forKey: "registration_complete")
-                
-                if (isSignUp) {
-                    // Send OTP verification email using Supabase user's email
+                if isSignUp {
+                    // This is a new user signing up
+                    // Store info for profile creation
+                    UserDefaults.standard.set(session.user.email, forKey: "pending_user_email")
+                    let userName = if let givenName = fullName?.givenName,
+                                    let familyName = fullName?.familyName {
+                        "\(givenName) \(familyName)"
+                    } else {
+                        "Coffee Lover"
+                    }
+                    UserDefaults.standard.set(userName, forKey: "pending_user_name")
+                    self.registrationComplete = false
+                    UserDefaults.standard.set(false, forKey: "registration_complete")
+                    
+                    // Send OTP for verification
                     if let userEmail = session.user.email {
                         try await supabase.auth.signInWithOTP(
                             email: userEmail,
                             shouldCreateUser: false
                         )
-                }
+                    }
+                } else {
+                    // This is a sign in attempt but no profile exists
+                    throw NSError(domain: "AuthError", 
+                                code: 404, 
+                                userInfo: [NSLocalizedDescriptionKey: "No account found. Please sign up first."])
                 }
             } else {
-                // Existing user (sign in flow)
+                // Existing user with profile - complete the sign in
                 self.registrationComplete = true
                 UserDefaults.standard.set(true, forKey: "registration_complete")
+                
             }
             
             KeychainService.shared.saveToken(session.accessToken)

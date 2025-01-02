@@ -250,7 +250,7 @@ struct LoginView: View {
                     isLoading = true
                     Task {
                         do {
-                            try await authService.signInWithApple(
+                            let response = try await authService.signInWithApple(
                                 idToken: tokenString,
                                 nonce: nonce,
                                 isSignUp: false,
@@ -262,7 +262,7 @@ struct LoginView: View {
                             print("❌ Error during Apple sign in: \(error)")
                             await MainActor.run {
                                 isLoading = false
-                                loginError = error.localizedDescription
+                                loginError = "No account found. Please sign up first."
                                 authService.authError = error.localizedDescription
                             }
                         }

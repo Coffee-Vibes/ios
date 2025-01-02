@@ -149,15 +149,11 @@ struct CoffeeShopCard: View {
                 }) {
                     Text("View Details")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(hex: "1D1612"))
+                        .foregroundColor(Color(hex: "FFFFFF"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
-                        .background(Color(hex: "F7F0E1"))
+                        .background(AppColor.primary)
                         .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color(hex: "5D4037"), lineWidth: 1)
-                        )
                 }
             }
             .padding(.horizontal)

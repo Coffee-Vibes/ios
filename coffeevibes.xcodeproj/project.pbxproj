@@ -38,7 +38,6 @@
 		841AEFA82D02D574009F762B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF7F2D02D574009F762B /* MainTabView.swift */; };
 		841AEFA92D02D574009F762B /* OTPVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF802D02D574009F762B /* OTPVerificationView.swift */; };
 		841AEFAA2D02D574009F762B /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF812D02D574009F762B /* SignUpView.swift */; };
-		841AEFAB2D02D574009F762B /* coffeemeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AEF842D02D574009F762B /* coffeemeApp.swift */; };
 		841AEFAD2D02D574009F762B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 841AEF5E2D02D574009F762B /* Preview Assets.xcassets */; };
 		841AEFAE2D02D574009F762B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 841AEF832D02D574009F762B /* Assets.xcassets */; };
 		841AEFB02D02D574009F762B /* Info-Sandbox.plist in Resources */ = {isa = PBXBuildFile; fileRef = 841AEF872D02D574009F762B /* Info-Sandbox.plist */; };
@@ -69,6 +68,7 @@
 		ED4A1C7B2CFA1BAE00CC509E /* Nunito-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ED4A1C662CFA1BAE00CC509E /* Nunito-LightItalic.ttf */; };
 		ED7992612D0E2F1A00CA4244 /* SpeechRecognitionManager 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7992602D0E2F1A00CA4244 /* SpeechRecognitionManager 2.swift */; };
 		ED7992642D0F60D200CA4244 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7992632D0F60D200CA4244 /* LocationManager.swift */; };
+		ED9FD53A2D2733B200E50759 /* CoffeeVibesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5392D2733B200E50759 /* CoffeeVibesApp.swift */; };
 		EDAB7A052D04CF2600C31FBD /* CoffeeShopFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */; };
 /* End PBXBuildFile section */
 
@@ -106,7 +106,6 @@
 		841AEF802D02D574009F762B /* OTPVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPVerificationView.swift; sourceTree = "<group>"; };
 		841AEF812D02D574009F762B /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		841AEF832D02D574009F762B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		841AEF842D02D574009F762B /* coffeemeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = coffeemeApp.swift; sourceTree = "<group>"; };
 		841AEF862D02D574009F762B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		841AEF872D02D574009F762B /* Info-Sandbox.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Sandbox.plist"; sourceTree = "<group>"; };
 		841AEFB12D02D577009F762B /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
@@ -135,6 +134,7 @@
 		ED7992602D0E2F1A00CA4244 /* SpeechRecognitionManager 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionManager 2.swift"; sourceTree = "<group>"; };
 		ED7992622D0F4FD400CA4244 /* CoffeeVibes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CoffeeVibes.entitlements; sourceTree = "<group>"; };
 		ED7992632D0F60D200CA4244 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationManager.swift; path = coffeevibes/Services/LocationManager.swift; sourceTree = SOURCE_ROOT; };
+		ED9FD5392D2733B200E50759 /* CoffeeVibesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeVibesApp.swift; path = coffeevibes/CoffeeVibesApp.swift; sourceTree = SOURCE_ROOT; };
 		EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopFilterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -270,6 +270,7 @@
 		841AEF882D02D574009F762B /* CoffeeVibes */ = {
 			isa = PBXGroup;
 			children = (
+				ED9FD5392D2733B200E50759 /* CoffeeVibesApp.swift */,
 				ED7992622D0F4FD400CA4244 /* CoffeeVibes.entitlements */,
 				841AEF572D02D574009F762B /* Coordinator */,
 				841AEF5D2D02D574009F762B /* Models */,
@@ -278,7 +279,6 @@
 				841AEF822D02D574009F762B /* Views */,
 				841AEF5F2D02D574009F762B /* Preview Content */,
 				841AEF832D02D574009F762B /* Assets.xcassets */,
-				841AEF842D02D574009F762B /* coffeemeApp.swift */,
 				841AEF862D02D574009F762B /* Info.plist */,
 				841AEF872D02D574009F762B /* Info-Sandbox.plist */,
 			);
@@ -486,13 +486,13 @@
 				841AEFA32D02D574009F762B /* ProfileScreen.swift in Sources */,
 				841AEFA42D02D574009F762B /* CommonStyles.swift in Sources */,
 				841AEFA52D02D574009F762B /* CreateProfileView.swift in Sources */,
+				ED9FD53A2D2733B200E50759 /* CoffeeVibesApp.swift in Sources */,
 				841AEFA62D02D574009F762B /* ForgotPasswordView.swift in Sources */,
 				841AEFA72D02D574009F762B /* LoginView.swift in Sources */,
 				841AEFA82D02D574009F762B /* MainTabView.swift in Sources */,
 				841AEFA92D02D574009F762B /* OTPVerificationView.swift in Sources */,
 				841AEFAA2D02D574009F762B /* SignUpView.swift in Sources */,
 				ED7992642D0F60D200CA4244 /* LocationManager.swift in Sources */,
-				841AEFAB2D02D574009F762B /* coffeemeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

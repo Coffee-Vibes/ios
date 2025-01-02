@@ -5,6 +5,7 @@ enum AppColor {
     static let background = Color(hex: "FAF7F4")
     static let foreground = Color(hex: "1D1612")
     static let inputForeground = Color(hex: "6A6A6A")
+    static let secondary = Color(hex: "FCF3ED")
 }
 
 enum TypeStyle {
