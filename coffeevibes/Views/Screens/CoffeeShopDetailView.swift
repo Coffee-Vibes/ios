@@ -203,7 +203,7 @@ struct CoffeeShopDetailView: View {
                 }
                 
                 // Contact Info
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
                     if let website = coffeeShop.websiteUrl {
                         Button(action: {
                             if let url = URL(string: website) {
@@ -274,10 +274,10 @@ struct CoffeeShopDetailView: View {
                 // Popular Items
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("Popular Items")
+                        Text("Reviews")
                             .font(.headline)
                         Spacer()
-                        Button("View Full Menu") {
+                        Button("See All") {
                             // Handle view menu
                         }
                         .font(.subheadline)

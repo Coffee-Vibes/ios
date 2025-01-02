@@ -14,6 +14,20 @@ struct CoffeeVibesApp: App {
     
     init() {
         FontManager.registerFonts()
+        configureTabBarAppearance()
+    }
+    
+    private func configureTabBarAppearance() {
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = UIColor(AppColor.background)
+        
+        tabBarAppearance.shadowColor = nil
+        tabBarAppearance.shadowImage = nil
+        
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().backgroundColor = UIColor(AppColor.background)
     }
     
     var body: some Scene {

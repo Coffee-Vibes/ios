@@ -159,7 +159,7 @@ struct CoffeeShopCard: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
-        .background(Color.white)
+        .background(AppColor.background)
         .cornerRadius(12)
         .shadow(radius: showShadow ? 5 : 0)
         .navigationDestination(isPresented: $showingDetail) {

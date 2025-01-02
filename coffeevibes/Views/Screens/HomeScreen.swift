@@ -63,7 +63,7 @@ struct HomeScreen: View {
                                             isShowingDetail = true
                                         },
                                         showDragIndicator: false,
-                                        showShadow: false,
+                                        showShadow: true,
                                         useNavigationDestination: true,
                                         onFavoriteToggled: {
                                             Task {
@@ -95,6 +95,7 @@ struct HomeScreen: View {
                                             }
                                         }
                                     )
+                                    .padding(.horizontal, 16)
                                     .listRowSeparator(.hidden)
                                     .listRowInsets(EdgeInsets())
                                     .listRowBackground(Color(hex: "FAF7F4"))

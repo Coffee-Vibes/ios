@@ -30,16 +30,16 @@ struct FavoritesScreen: View {
                                             showingDetail = true
                                         },
                                         showDragIndicator: false,
-                                        showShadow: false,
+                                        showShadow: true,
                                         useNavigationDestination: true,
                                         onFavoriteToggled: {
                                             favorites.removeAll { $0.id == shop.id }
                                         }
                                     )
+                                    .padding(.horizontal, 16)
                                 }
                             }
                         }
-                        .padding(.horizontal)
                     }
                 }
             }
