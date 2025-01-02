@@ -32,7 +32,7 @@ struct LoginView: View {
                    // .scaledToFit()
                     .frame(width: 200, height: 200)
                 Text("Log in to your account")
-                    .font(.system(size: 36, weight: .semibold))
+                    .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.black)
                 Text("Welcome back! Please enter your details.")
                     .font(.system(size: 14))
@@ -130,7 +130,7 @@ struct LoginView: View {
                         }
                         
                         // Social Login Options
-                        VStack(spacing: 16) {
+                        VStack(spacing: 8) {
                             SignInWithAppleButton(.signIn) { request in
                                 let nonce = authService.generateNonce()
                                 currentNonce = nonce

@@ -34,7 +34,7 @@ struct SignUpView: View {
                         .resizable()
                         .frame(width: 200, height: 200)                    
                     Text("Sign up to your account")
-                        .font(.system(size: 36, weight: .semibold))
+                        .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(.black)
                     Text("Create your account now")
                         .font(.system(size: 14))
@@ -42,7 +42,7 @@ struct SignUpView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 40)
-                .padding(.bottom, 10)
+       
                 
                 // Sign Up Form
                 VStack {
@@ -147,7 +147,7 @@ struct SignUpView: View {
                             }
                             
                             // Social Login Options
-                            VStack(spacing: 16) {
+                            VStack(spacing: 8) {
                                 SignInWithAppleButton(.signUp) { request in
                                     let nonce = authService.generateNonce()
                                     currentNonce = nonce

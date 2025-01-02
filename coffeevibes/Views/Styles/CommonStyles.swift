@@ -4,6 +4,7 @@ enum AppColor {
     static let primary = Color(hex: "5D4037")
     static let background = Color(hex: "FAF7F4")
     static let foreground = Color(hex: "1D1612")
+    static let inputForeground = Color(hex: "6A6A6A")
 }
 
 enum TypeStyle {
@@ -179,6 +180,7 @@ struct RoundedTextFieldStyle: TextFieldStyle {
             .frame(height: 44)
             .background(Color.white)
             .cornerRadius(8)
+            .foregroundColor(AppColor.inputForeground)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(error ? Color.red : Color(hex: "D0D5DD"), lineWidth: 1)
@@ -199,6 +201,7 @@ struct PasswordFieldStyle: TextFieldStyle {
             .frame(height: 44)
             .background(Color.white)
             .cornerRadius(8)
+            .foregroundColor(AppColor.inputForeground)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(error ? Color.red : Color(hex: "D0D5DD"), lineWidth: 1)

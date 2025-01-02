@@ -226,6 +226,11 @@
 			children = (
 				841AEF712D02D574009F762B /* OnboardingView.swift */,
 				841AEF722D02D574009F762B /* OnboardingViewModel.swift */,
+				841AEF7C2D02D574009F762B /* CreateProfileView.swift */,
+				841AEF7D2D02D574009F762B /* ForgotPasswordView.swift */,
+				841AEF7E2D02D574009F762B /* LoginView.swift */,
+				841AEF802D02D574009F762B /* OTPVerificationView.swift */,
+				841AEF812D02D574009F762B /* SignUpView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -238,6 +243,7 @@
 				841AEF772D02D574009F762B /* HomeScreen.swift */,
 				841AEF782D02D574009F762B /* ProfileScreen.swift */,
 				84BBC1352D03532F00782B7D /* PromotionsView.swift */,
+				841AEF7F2D02D574009F762B /* MainTabView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -257,12 +263,6 @@
 				841AEF732D02D574009F762B /* Onboarding */,
 				841AEF792D02D574009F762B /* Screens */,
 				841AEF7B2D02D574009F762B /* Styles */,
-				841AEF7C2D02D574009F762B /* CreateProfileView.swift */,
-				841AEF7D2D02D574009F762B /* ForgotPasswordView.swift */,
-				841AEF7E2D02D574009F762B /* LoginView.swift */,
-				841AEF7F2D02D574009F762B /* MainTabView.swift */,
-				841AEF802D02D574009F762B /* OTPVerificationView.swift */,
-				841AEF812D02D574009F762B /* SignUpView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
