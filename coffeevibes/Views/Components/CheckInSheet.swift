@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import Supabase
 
 struct CheckInSheet: View {
     let coffeeShop: CoffeeShop
@@ -15,6 +16,7 @@ struct CheckInSheet: View {
     
     @EnvironmentObject private var authService: AuthenticationService
     @StateObject private var coffeeShopService = CoffeeShopService()
+    @StateObject private var storageService = StorageService()
     
     var body: some View {
         NavigationView {
@@ -163,9 +165,20 @@ struct CheckInSheet: View {
     }
     
     private func uploadPhoto(_ data: Data) async throws -> String {
-        // Implement photo upload to your storage
-        // Return the URL of the uploaded photo
-        return ""
+        guard let compressedData = UIImage(data: data)?
+            .jpegData(compressionQuality: 0.7) else {
+            throw StorageError.invalidImageData
+        }
+        
+        guard let userId = authService.currentUser?.id else {
+            throw StorageError.invalidResponse
+        }
+        
+        return try await storageService.uploadCheckInPhoto(
+            imageData: compressedData,
+            userId: userId.uuidString,
+            shopId: coffeeShop.id
+        )
     }
 }
 

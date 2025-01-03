@@ -39,7 +39,7 @@ struct CoffeeShop: Identifiable, Codable {
     var distance: Double?
     var websiteUrl: String?
     var phone: String?
-    var lastVisited: Date?
+    var lastVisited: String?
     var visitCount: Int?
     
     private enum CodingKeys: String, CodingKey {
@@ -88,7 +88,10 @@ struct CoffeeShop: Identifiable, Codable {
               let distance = dictionary["distance"] as? Double,
               let tags = dictionary["tags"] as? [String],
               let websiteUrl = dictionary["website_url"] as? String,
-              let phone = dictionary["phone"] as? String else {
+              let phone = dictionary["phone"] as? String,
+              let lastVisited = dictionary["last_visited"] as? String,
+              let visitCount = dictionary["visit_count"] as? Int
+              else {
             return nil
         }
         self.id = id
@@ -112,6 +115,8 @@ struct CoffeeShop: Identifiable, Codable {
         self.distance = distance
         self.websiteUrl = websiteUrl
         self.phone = phone
+        self.lastVisited = lastVisited
+        self.visitCount = visitCount
     }
     
     init(from decoder: Decoder) throws {
@@ -137,7 +142,7 @@ struct CoffeeShop: Identifiable, Codable {
         distance = try container.decodeIfPresent(Double.self, forKey: .distance)
         websiteUrl = try container.decodeIfPresent(String.self, forKey: .websiteUrl)
         phone = try container.decodeIfPresent(String.self, forKey: .phone)
-        lastVisited = try container.decodeIfPresent(Date.self, forKey: .lastVisited)
+        lastVisited = try container.decodeIfPresent(String.self, forKey: .lastVisited)
         visitCount = try container.decodeIfPresent(Int.self, forKey: .visitCount)
     }
     
@@ -145,5 +150,13 @@ struct CoffeeShop: Identifiable, Codable {
     
     static func == (lhs: CoffeeShop, rhs: CoffeeShop) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+extension CoffeeShop {
+    var lastVisitedDate: Date? {
+        guard let lastVisited = lastVisited else { return nil }
+        let formatter = ISO8601DateFormatter()
+        return formatter.date(from: lastVisited)
     }
 }

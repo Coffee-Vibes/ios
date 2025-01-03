@@ -86,23 +86,29 @@ struct CoffeeShopCard: View {
                         }
                     }
                     
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(shop.name)
                             .h3Style()
                         Text(shop.todayHours ?? "Hours not available")
                             .h4Style()
+                        if let lastVisited = lastVisitedText {
+                            Text(lastVisited)
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
                 
                 Spacer()
                 
+                // Distance info
                 if let distance = shop.distance {
                     Text(String(format: "%.1f miles away", distance))
                         .h4Style()
                 }
             }
             .padding(.horizontal)
-            .padding(.top)  
+            .padding(.top)
             
             // Tags
             shopTags
@@ -226,6 +232,14 @@ struct CoffeeShopCard: View {
         default:
             return Color(hex: "E8F0FC")
         }
+    }
+    
+    private var lastVisitedText: String? {
+        guard let date = shop.lastVisitedDate else { return nil }
+        
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return "Last visited \(formatter.localizedString(for: date, relativeTo: Date()))"
     }
 
 } 

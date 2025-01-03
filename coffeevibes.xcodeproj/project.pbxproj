@@ -74,6 +74,7 @@
 		ED9FD5402D27648800E50759 /* CoffeeShopReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */; };
 		ED9FD5422D2768FB00E50759 /* CoffeeShopReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */; };
 		ED9FD5442D287E0700E50759 /* CheckInSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5432D287E0700E50759 /* CheckInSheet.swift */; };
+		ED9FD5462D2885AD00E50759 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5452D2885AD00E50759 /* StorageService.swift */; };
 		EDAB7A052D04CF2600C31FBD /* CoffeeShopFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */; };
 /* End PBXBuildFile section */
 
@@ -145,6 +146,7 @@
 		ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeShopReviewService.swift; path = coffeevibes/Services/CoffeeShopReviewService.swift; sourceTree = SOURCE_ROOT; };
 		ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeShopReview.swift; path = coffeevibes/Models/CoffeeShopReview.swift; sourceTree = SOURCE_ROOT; };
 		ED9FD5432D287E0700E50759 /* CheckInSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CheckInSheet.swift; path = coffeevibes/Views/Components/CheckInSheet.swift; sourceTree = SOURCE_ROOT; };
+		ED9FD5452D2885AD00E50759 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StorageService.swift; path = coffeevibes/Services/StorageService.swift; sourceTree = SOURCE_ROOT; };
 		EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopFilterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -199,6 +201,7 @@
 		841AEF672D02D574009F762B /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				ED9FD5452D2885AD00E50759 /* StorageService.swift */,
 				ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */,
 				ED9FD53B2D274F4500E50759 /* GooglePlacesService.swift */,
 				ED7992632D0F60D200CA4244 /* LocationManager.swift */,
@@ -485,6 +488,7 @@
 				841AEF912D02D574009F762B /* CoffeeShopService.swift in Sources */,
 				841AEF922D02D574009F762B /* KeychainService.swift in Sources */,
 				ED9FD53E2D27637000E50759 /* AddReviewSheet.swift in Sources */,
+				ED9FD5462D2885AD00E50759 /* StorageService.swift in Sources */,
 				841AEF932D02D574009F762B /* NetworkManager.swift in Sources */,
 				841AEF942D02D574009F762B /* SupabaseConfig.swift in Sources */,
 				841AEF952D02D574009F762B /* UserService.swift in Sources */,

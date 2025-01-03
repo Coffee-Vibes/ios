@@ -39,7 +39,9 @@ struct FavoritesScreen: View {
             }
         case .recent:
             return favorites.sorted { shop1, shop2 in
-                return (shop1.lastVisited ?? Date.distantPast) > (shop2.lastVisited ?? Date.distantPast)
+                let date1 = shop1.lastVisitedDate ?? Date.distantPast
+                let date2 = shop2.lastVisitedDate ?? Date.distantPast
+                return date1 > date2
             }
         case .mostVisited:
             return favorites.sorted { shop1, shop2 in
@@ -50,7 +52,7 @@ struct FavoritesScreen: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center, spacing: 16) {
+            VStack(alignment: .center, spacing: 0) {
                 // Filter Pills
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
@@ -93,11 +95,13 @@ struct FavoritesScreen: View {
                                         inverseViewDetailsColors: false
                                     )
                                     .padding(.horizontal, 16)
+                                    .padding(.top, 8)
                                 }
                             }
                         }
                     }
                 }
+                .padding(.top, 8)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {
