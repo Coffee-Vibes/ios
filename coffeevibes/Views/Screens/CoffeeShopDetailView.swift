@@ -427,9 +427,14 @@ struct ReviewRow: View {
         VStack(alignment: .leading, spacing: 12) {
             // Profile and Rating
             HStack(spacing: 12) {
+                // Debug info
+                let _ = print("🎭 Rendering review: \(review.id)")
+                let _ = print("👤 User info: \(String(describing: review.user))")
+                
                 // Profile Image
                 if let profileImage = review.user?.profilePhoto,
                    let url = URL(string: profileImage) {
+                    let _ = print("🖼️ Loading profile image from: \(profileImage)")
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .success(let image):
@@ -438,22 +443,19 @@ struct ReviewRow: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 40, height: 40)
                                 .clipShape(Circle())
-                        default:
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 40, height: 40)
-                                .clipShape(Circle())
-                                .foregroundColor(Color.gray.opacity(0.8))
+                        case .failure(let error):
+                            let _ = print("❌ Failed to load image: \(error)")
+                            fallbackProfileImage
+                        case .empty:
+                            let _ = print("⏳ Loading image...")
+                            fallbackProfileImage
+                        @unknown default:
+                            fallbackProfileImage
                         }
                     }
                 } else {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                        .foregroundColor(Color.gray.opacity(0.8))
+                    let _ = print("⚠️ No profile image URL available")
+                    fallbackProfileImage
                 }
                 
                 // Name and Rating
@@ -506,6 +508,10 @@ struct ReviewRow: View {
         let now = Date()
         let components = Calendar.current.dateComponents([.minute, .hour, .day], from: date, to: now)
         
+        print("📅 Formatting date: \(date)")
+        print("⏰ Current time: \(now)")
+        print("🕐 Time components: \(components)")
+        
         if let minutes = components.minute, minutes < 60 {
             return "\(minutes) minute\(minutes == 1 ? "" : "s") ago"
         } else if let hours = components.hour, hours < 24 {
@@ -515,6 +521,15 @@ struct ReviewRow: View {
         } else {
             return "Just now"
         }
+    }
+    
+    private var fallbackProfileImage: some View {
+        Image(systemName: "person.circle.fill")
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
+            .foregroundColor(Color.gray.opacity(0.8))
     }
 }
 

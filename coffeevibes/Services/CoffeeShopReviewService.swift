@@ -37,6 +37,8 @@ class CoffeeShopReviewService: ObservableObject {
         await setLoading(true)
         defer { Task { @MainActor in await setLoading(false) } }
         
+        print("🔍 Fetching reviews for shop: \(shopId)")
+        
         let response = try await supabaseClient
             .from("coffee_shop_reviews")
             .select("""
@@ -57,14 +59,50 @@ class CoffeeShopReviewService: ObservableObject {
             .order("created_at", ascending: false)
             .execute()
         
+        print("📦 Raw response data: \(String(data: response.data, encoding: .utf8) ?? "nil")")
+        
         let decoder = JSONDecoder()
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+            
+            // Try multiple date formats
+            let formats = [
+                "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+                "yyyy-MM-dd'T'HH:mm:ss.SSS",
+                "yyyy-MM-dd'T'HH:mm:ss"
+            ]
+            
+            for format in formats {
+                dateFormatter.dateFormat = format
+                if let date = dateFormatter.date(from: dateString) {
+                    return date
+                }
+            }
+            
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot decode date string \(dateString)"
+            )
+        }
         
-        return try decoder.decode([CoffeeShopReview].self, from: response.data)
+        let reviews = try decoder.decode([CoffeeShopReview].self, from: response.data)
+        print("🔄 Decoded \(reviews.count) reviews")
+        reviews.forEach { review in
+            print("""
+            📝 Review:
+            - ID: \(review.id)
+            - User: \(review.user?.name ?? "nil")
+            - Photo: \(review.user?.profilePhoto ?? "nil")
+            - Created: \(review.createdAt)
+            """)
+        }
+        
+        return reviews
     }
 
 

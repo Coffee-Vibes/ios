@@ -39,35 +39,50 @@ struct CoffeeShopReview: Identifiable, Decodable {
         }
         
         self.shopId = try container.decode(String.self, forKey: .shopId)
-        
-        // Handle rating decoding (could be String or Int in the database)
-        if let ratingString = try? container.decode(String.self, forKey: .rating),
-           let ratingInt = Int(ratingString) {
-            self.rating = ratingInt
-        } else {
-            self.rating = try container.decode(Int.self, forKey: .rating)
-        }
-        
+        self.rating = try container.decode(Int.self, forKey: .rating)
         self.reviewText = try container.decode(String.self, forKey: .reviewText)
+        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
+        self.modifiedAt = try container.decode(Date.self, forKey: .modifiedAt)
         
-        // Handle date decoding
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-        
-        if let createdAtString = try? container.decode(String.self, forKey: .createdAt),
-           let date = dateFormatter.date(from: createdAtString) {
-            self.createdAt = date
+        // Decode user profile data more robustly
+        if let userProfileData = try? container.decode(UserProfileData.self, forKey: .user) {
+            self.user = UserDetails(
+                userId: userProfileData.userId,
+                name: userProfileData.name,
+                email: "", // We don't receive email in this context
+                profilePhoto: userProfileData.profilePhoto
+            )
         } else {
-            self.createdAt = Date()
+            self.user = nil
         }
-        
-        if let modifiedAtString = try? container.decode(String.self, forKey: .modifiedAt),
-           let date = dateFormatter.date(from: modifiedAtString) {
-            self.modifiedAt = date
-        } else {
-            self.modifiedAt = Date()
-        }
+    }
+}
+
+// Helper struct to decode user profile data
+private struct UserProfileData: Decodable {
+    let userId: String
+    let name: String?
+    let profilePhoto: String?
+    
+    private enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case name
+        case profilePhoto = "profile_photo"
+    }
+}
+
+// Add this extension to UserDetails to support partial initialization
+extension UserDetails {
+    init(userId: String, name: String?, email: String, profilePhoto: String?) {
+        self.userId = userId
+        self.name = name
+        self.email = email
+        self.profilePhoto = profilePhoto
+        self.isNotificationsEnabled = false
+        self.bio = nil
+        self.preferredVibes = nil
+        self.createdAt = nil
+        self.modifiedAt = nil
+        self.phone = nil
     }
 } 
