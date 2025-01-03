@@ -93,7 +93,8 @@ struct HomeScreen: View {
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        inverseViewDetailsColors: false
                                     )
                                     .padding(.horizontal, 16)
                                     .listRowSeparator(.hidden)

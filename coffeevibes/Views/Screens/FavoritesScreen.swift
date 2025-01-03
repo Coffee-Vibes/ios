@@ -34,7 +34,8 @@ struct FavoritesScreen: View {
                                         useNavigationDestination: true,
                                         onFavoriteToggled: {
                                             favorites.removeAll { $0.id == shop.id }
-                                        }
+                                        },
+                                        inverseViewDetailsColors: false
                                     )
                                     .padding(.horizontal, 16)
                                 }

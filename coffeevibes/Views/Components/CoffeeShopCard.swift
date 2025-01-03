@@ -10,6 +10,7 @@ struct CoffeeShopCard: View {
     let showShadow: Bool
     let useNavigationDestination: Bool
     let onFavoriteToggled: (() -> Void)?
+    let inverseViewDetailsColors: Bool
     @StateObject private var coffeeShopService = CoffeeShopService()
     @State private var showingDetail = false
     @State private var isFavorite: Bool
@@ -20,7 +21,8 @@ struct CoffeeShopCard: View {
         showDragIndicator: Bool = true,
         showShadow: Bool = true,
         useNavigationDestination: Bool = true,
-        onFavoriteToggled: (() -> Void)? = nil
+        onFavoriteToggled: (() -> Void)? = nil,
+        inverseViewDetailsColors: Bool = false
     ) {
         self.shop = shop
         self.onViewDetails = onViewDetails
@@ -28,6 +30,7 @@ struct CoffeeShopCard: View {
         self.showShadow = showShadow
         self.useNavigationDestination = useNavigationDestination
         self.onFavoriteToggled = onFavoriteToggled
+        self.inverseViewDetailsColors = inverseViewDetailsColors
         _isFavorite = State(initialValue: shop.isFavorite)
     }
     
@@ -94,12 +97,12 @@ struct CoffeeShopCard: View {
                 Spacer()
                 
                 if let distance = shop.distance {
-                    Text(String(format: "%.1f mi", distance))
-                        .h4MediumStyle()
+                    Text(String(format: "%.1f miles away", distance))
+                        .h4Style()
                 }
             }
             .padding(.horizontal)
-            .padding(.top)
+            .padding(.top)  
             
             // Tags
             shopTags
@@ -149,17 +152,23 @@ struct CoffeeShopCard: View {
                 }) {
                     Text("View Details")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(hex: "FFFFFF"))
+                        .foregroundColor(inverseViewDetailsColors ? Color(hex: "FFFFFF") : AppColor.primary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
-                        .background(AppColor.primary)
+                        .background(inverseViewDetailsColors ? AppColor.primary : AppColor.secondary)
                         .cornerRadius(10)
+                        .overlay(
+                            !inverseViewDetailsColors ?
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(AppColor.primary, lineWidth: 1)
+                                : nil
+                        )
                 }
             }
             .padding(.horizontal)
             .padding(.bottom)
         }
-        .background(AppColor.background)
+        .background(Color(hex: "FFFFFF"))
         .cornerRadius(12)
         .shadow(radius: showShadow ? 5 : 0)
         .navigationDestination(isPresented: $showingDetail) {

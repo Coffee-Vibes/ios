@@ -255,7 +255,8 @@ private struct SelectedCoffeeShopView: View {
         VStack {
             CoffeeShopCard(
                 shop: shop,
-                onViewDetails: onNavigateToDetail
+                onViewDetails: onNavigateToDetail,
+                inverseViewDetailsColors: true
             )
             .padding(.horizontal)
             .padding(.bottom, 115)
