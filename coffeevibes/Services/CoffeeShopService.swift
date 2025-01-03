@@ -156,7 +156,7 @@ class CoffeeShopService: ObservableObject {
     // Function to get all coffee shops with favorite status for a user
  
 
-    func getReviews(for shopId: String) async throws -> [Review] {
+    func getReviews(for shopId: String) async throws -> [CoffeeShopReview] {
         isLoading = true
         defer { isLoading = false }
         
@@ -173,7 +173,7 @@ class CoffeeShopService: ObservableObject {
             dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Set to UTC if your dates are in UTC
             decoder.dateDecodingStrategy = .formatted(dateFormatter)
             
-            let reviews = try decoder.decode([Review].self, from: response.data)
+            let reviews = try decoder.decode([CoffeeShopReview].self, from: response.data)
             print("Reviews for shop \(shopId): \(reviews)")
             return reviews
         } catch {

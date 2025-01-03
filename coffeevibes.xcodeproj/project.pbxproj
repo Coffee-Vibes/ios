@@ -70,6 +70,9 @@
 		ED7992642D0F60D200CA4244 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7992632D0F60D200CA4244 /* LocationManager.swift */; };
 		ED9FD53A2D2733B200E50759 /* CoffeeVibesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5392D2733B200E50759 /* CoffeeVibesApp.swift */; };
 		ED9FD53C2D274F4500E50759 /* GooglePlacesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD53B2D274F4500E50759 /* GooglePlacesService.swift */; };
+		ED9FD53E2D27637000E50759 /* AddReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD53D2D27637000E50759 /* AddReviewSheet.swift */; };
+		ED9FD5402D27648800E50759 /* CoffeeShopReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */; };
+		ED9FD5422D2768FB00E50759 /* CoffeeShopReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */; };
 		EDAB7A052D04CF2600C31FBD /* CoffeeShopFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */; };
 /* End PBXBuildFile section */
 
@@ -137,6 +140,9 @@
 		ED7992632D0F60D200CA4244 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LocationManager.swift; path = coffeevibes/Services/LocationManager.swift; sourceTree = SOURCE_ROOT; };
 		ED9FD5392D2733B200E50759 /* CoffeeVibesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeVibesApp.swift; path = coffeevibes/CoffeeVibesApp.swift; sourceTree = SOURCE_ROOT; };
 		ED9FD53B2D274F4500E50759 /* GooglePlacesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GooglePlacesService.swift; path = coffeevibes/Services/GooglePlacesService.swift; sourceTree = SOURCE_ROOT; };
+		ED9FD53D2D27637000E50759 /* AddReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddReviewSheet.swift; path = coffeevibes/Views/Components/AddReviewSheet.swift; sourceTree = SOURCE_ROOT; };
+		ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeShopReviewService.swift; path = coffeevibes/Services/CoffeeShopReviewService.swift; sourceTree = SOURCE_ROOT; };
+		ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeShopReview.swift; path = coffeevibes/Models/CoffeeShopReview.swift; sourceTree = SOURCE_ROOT; };
 		EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopFilterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -170,6 +176,7 @@
 		841AEF5D2D02D574009F762B /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */,
 				841AEF582D02D574009F762B /* CoffeeShop.swift */,
 				841AEF592D02D574009F762B /* FavoriteShop.swift */,
 				841AEF5A2D02D574009F762B /* OnboardingItem.swift */,
@@ -190,6 +197,7 @@
 		841AEF672D02D574009F762B /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */,
 				ED9FD53B2D274F4500E50759 /* GooglePlacesService.swift */,
 				ED7992632D0F60D200CA4244 /* LocationManager.swift */,
 				ED7992602D0E2F1A00CA4244 /* SpeechRecognitionManager 2.swift */,
@@ -215,6 +223,7 @@
 		841AEF702D02D574009F762B /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				ED9FD53D2D27637000E50759 /* AddReviewSheet.swift */,
 				EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */,
 				841AEF6A2D02D574009F762B /* CoffeeShopCard.swift */,
 				841AEF6C2D02D574009F762B /* CoffeeTagView.swift */,
@@ -465,12 +474,14 @@
 				841AEF8A2D02D574009F762B /* CoffeeShop.swift in Sources */,
 				841AEF8B2D02D574009F762B /* FavoriteShop.swift in Sources */,
 				841AEF8C2D02D574009F762B /* OnboardingItem.swift in Sources */,
+				ED9FD5422D2768FB00E50759 /* CoffeeShopReview.swift in Sources */,
 				841AEF8D2D02D574009F762B /* Review.swift in Sources */,
 				841AEF8E2D02D574009F762B /* UserDetails.swift in Sources */,
 				841AEF8F2D02D574009F762B /* APIConfig.swift in Sources */,
 				841AEF902D02D574009F762B /* AuthenticationService.swift in Sources */,
 				841AEF912D02D574009F762B /* CoffeeShopService.swift in Sources */,
 				841AEF922D02D574009F762B /* KeychainService.swift in Sources */,
+				ED9FD53E2D27637000E50759 /* AddReviewSheet.swift in Sources */,
 				841AEF932D02D574009F762B /* NetworkManager.swift in Sources */,
 				841AEF942D02D574009F762B /* SupabaseConfig.swift in Sources */,
 				841AEF952D02D574009F762B /* UserService.swift in Sources */,
@@ -481,6 +492,7 @@
 				841AEF9B2D02D574009F762B /* MapView.swift in Sources */,
 				841AEF9C2D02D574009F762B /* ViewImports.swift in Sources */,
 				EDAB7A052D04CF2600C31FBD /* CoffeeShopFilterView.swift in Sources */,
+				ED9FD5402D27648800E50759 /* CoffeeShopReviewService.swift in Sources */,
 				841AEF9D2D02D574009F762B /* OnboardingView.swift in Sources */,
 				841AEF9E2D02D574009F762B /* OnboardingViewModel.swift in Sources */,
 				841AEF9F2D02D574009F762B /* CoffeeShopDetailView.swift in Sources */,
