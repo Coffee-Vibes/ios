@@ -25,6 +25,7 @@ public struct CreateProfileView: View {
     @State private var uploadError: String?
     @State private var userId: UUID?
     @State private var isLoadingUserData = false
+    @StateObject private var storageService = StorageService()
 //    @State private var shouldNavigateToHome = false
     
     let preferences = [
@@ -39,6 +40,7 @@ public struct CreateProfileView: View {
         let bio: String
         let preferred_vibes: String
         let is_notifications_enabled: String
+        let profile_photo: String?
     }
     
     public var body: some View {
@@ -231,40 +233,6 @@ public struct CreateProfileView: View {
         }
     }
     
-    private func uploadProfilePhoto() async throws -> String? {
-        guard let image = selectedImage,
-              let imageData = image.toPngData() else {
-            return nil
-        }
-        
-        let fileName = "\(UUID().uuidString).png"
-        let filePath = "profile-photos/\(fileName)"
-        
-        do {
-            let result = try await supabase.storage
-                .from("profile-photo-bucket")
-                .upload(
-                    path: filePath,
-                    file: imageData,
-                    options: FileOptions(
-                        cacheControl: "3600",
-                        contentType: "image/png"
-                    )
-                )
-            
-            // Get the public URL for the uploaded image
-            let publicURL = try supabase.storage
-                .from("profile-photo-bucket")
-                .getPublicURL(path: filePath)
-            print("publicUrl: \(publicURL.absoluteString)")
-            return publicURL.absoluteString
-            
-        } catch {
-            print("Error uploading profile photo: \(error)")
-            throw error
-        }
-    }
-    
     private func saveProfile() {
         guard !name.isEmpty else {
             uploadError = "Name is required"
@@ -279,6 +247,14 @@ public struct CreateProfileView: View {
                 print("🔍 Current user ID: \(userId?.uuidString ?? "nil")")
                 print("🔍 Name to save: \(name)")
                 
+                // Upload photo if selected
+                var photoUrl: String?
+                if let image = selectedImage,
+                   let imageData = image.jpegData(compressionQuality: 0.7) {
+                    photoUrl = try await storageService.uploadProfilePhoto(imageData: imageData)
+                    print("🔍 Uploaded photo URL: \(photoUrl ?? "nil")")
+                }
+                
                 // Convert preferences to array string
                 let arrayString = "{" + Array(selectedPreferences).map { "\"\($0)\"" }.joined(separator: ",") + "}"
                 print("🔍 Preferences to save: \(arrayString)")
@@ -288,7 +264,8 @@ public struct CreateProfileView: View {
                     name: name,
                     bio: bio,
                     preferred_vibes: arrayString,
-                    is_notifications_enabled: String(notificationsEnabled)
+                    is_notifications_enabled: String(notificationsEnabled),
+                    profile_photo: photoUrl
                 )
                 print("🔍 Update data prepared: \(updateData)")
 

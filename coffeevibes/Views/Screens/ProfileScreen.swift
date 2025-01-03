@@ -98,6 +98,7 @@ struct ProfileHeader: View {
     @State private var reviewCount: Int = 0
     @State private var visitCount: Int = 0
     @State private var favoriteCount: Int = 0
+    @StateObject private var storageService = StorageService()
     
     var body: some View {
         VStack(spacing: 16) {
@@ -267,28 +268,11 @@ struct ProfileHeader: View {
             return nil
         }
         
-        let fileName = "\(UUID().uuidString).jpg"
-        let filePath = "profile-photos/\(fileName)"
-        
         do {
-            _ = try await supabase.storage
-                .from("profile-photo-bucket")
-                .upload(
-                    path: filePath,
-                    file: imageData,
-                    options: FileOptions(
-                        cacheControl: "3600",
-                        contentType: "image/png"
-                    )
-                )
-            
-            // Get the public URL for the uploaded image
-            let publicURL = try supabase.storage
-                .from("profile-photo-bucket")
-                .getPublicURL(path: filePath)
+            let publicURL = try await storageService.uploadProfilePhoto(imageData: imageData)
             isFinish = true
-            print("publicUrl: \(publicURL.absoluteString)")
-            return publicURL.absoluteString
+            print("publicUrl: \(publicURL)")
+            return publicURL
             
         } catch {
             isFinish = false
