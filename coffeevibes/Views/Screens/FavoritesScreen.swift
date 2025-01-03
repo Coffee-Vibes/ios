@@ -52,7 +52,7 @@ struct FavoritesScreen: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center, spacing: 0) {
+            VStack(alignment: .center, spacing: 16) {
                 // Filter Pills
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
@@ -95,13 +95,11 @@ struct FavoritesScreen: View {
                                         inverseViewDetailsColors: false
                                     )
                                     .padding(.horizontal, 16)
-                                    .padding(.top, 8)
                                 }
                             }
                         }
                     }
                 }
-                .padding(.top, 8)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {

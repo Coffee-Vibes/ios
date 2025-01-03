@@ -9,6 +9,9 @@ struct UserDetails: Codable {
     var isNotificationsEnabled: Bool
     var bio: String?
     var preferredVibes: [String]?
+    var reviewCount: Int
+    var checkInCount: Int
+    var favoriteCount: Int
     var createdAt: String?
     var modifiedAt: String?
     
@@ -21,6 +24,9 @@ struct UserDetails: Codable {
         case isNotificationsEnabled = "is_notifications_enabled"
         case bio
         case preferredVibes = "preferred_vibes"
+        case reviewCount = "review_count"
+        case checkInCount = "checkin_count"
+        case favoriteCount = "favorite_count"
         case createdAt = "created_at"
         case modifiedAt = "modified_at"
     }

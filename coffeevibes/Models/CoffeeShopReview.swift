@@ -84,5 +84,8 @@ extension UserDetails {
         self.createdAt = nil
         self.modifiedAt = nil
         self.phone = nil
+        self.reviewCount = 0
+        self.checkInCount = 0
+        self.favoriteCount = 0
     }
 } 
