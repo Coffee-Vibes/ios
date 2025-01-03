@@ -42,6 +42,30 @@ struct CoffeeShopResponse: Codable {
     }
 }
 
+struct CheckIn: Codable {
+    let shopId: String
+    let note: String?
+    let photoUrl: String?
+    let mood: CheckInMood
+    let checkedInAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case shopId = "shop_id"
+        case note
+        case photoUrl = "photo_url"
+        case mood
+        case checkedInAt = "checked_in_at"
+    }
+}
+
+enum CheckInMood: String, Codable, CaseIterable {
+    case productive
+    case relaxed
+    case social
+    case focused
+    case creative
+}
+
 @MainActor
 class CoffeeShopService: ObservableObject {
     @Published var coffeeShops: [CoffeeShop] = []
@@ -228,5 +252,123 @@ class CoffeeShopService: ObservableObject {
             print("Error fetching favorite coffee shops: \(error)")
             throw error
         }
+    }
+
+    private struct VisitRequest: Encodable {
+        let shopId: String
+        let userId: String
+        let visitedAt: String
+        
+        enum CodingKeys: String, CodingKey {
+            case shopId = "shop_id"
+            case userId = "user_id"
+            case visitedAt = "visited_at"
+        }
+    }
+
+    private struct ShopUpdateRequest: Encodable {
+        let visitCount: String
+        let lastVisited: String
+        
+        enum CodingKeys: String, CodingKey {
+            case visitCount = "visit_count"
+            case lastVisited = "last_visited"
+        }
+    }
+
+    func trackVisit(for shopId: String, userId: String) async throws {
+        let path = "coffee_shop_visits"
+        let visitRequest = VisitRequest(
+            shopId: shopId,
+            userId: userId,
+            visitedAt: ISO8601DateFormatter().string(from: Date())
+        )
+        
+        try await supabaseClient
+            .from(path)
+            .insert(visitRequest)
+            .execute()
+            
+        // Update the visit count and last visited timestamp
+        let updateRequest = ShopUpdateRequest(
+            visitCount: "visit_count + 1",
+            lastVisited: ISO8601DateFormatter().string(from: Date())
+        )
+        
+        try await supabaseClient
+            .from("coffee_shops")
+            .update(updateRequest)
+            .eq("shop_id", value: shopId)
+            .execute()
+    }
+
+    // Add this struct inside CoffeeShopService
+    private struct CheckInRequest: Encodable {
+        let shopId: String
+        let userId: String
+        let checkedInAt: String
+        let note: String?
+        let photoUrl: String?
+        let mood: String
+        
+        enum CodingKeys: String, CodingKey {
+            case shopId = "shop_id"
+            case userId = "user_id"
+            case checkedInAt = "checked_in_at"
+            case note
+            case photoUrl = "photo_url"
+            case mood
+        }
+    }
+
+    func checkIn(to shopId: String, userId: String, checkIn: CheckIn) async throws {
+        let path = "coffee_shop_checkins"
+        let checkInRequest = CheckInRequest(
+            shopId: shopId,
+            userId: userId,
+            checkedInAt: ISO8601DateFormatter().string(from: Date()),
+            note: checkIn.note,
+            photoUrl: checkIn.photoUrl,
+            mood: checkIn.mood.rawValue
+        )
+        
+        try await supabaseClient
+            .from(path)
+            .insert(checkInRequest)
+            .execute()
+    }
+    
+    struct CheckInResponse: Codable {
+        let id: UUID
+        let shopId: String
+        let userId: String
+        let note: String?
+        let photoUrl: String?
+        let mood: CheckInMood
+        let checkedInAt: Date
+        
+        enum CodingKeys: String, CodingKey {
+            case id
+            case shopId = "shop_id"
+            case userId = "user_id"
+            case note
+            case photoUrl = "photo_url"
+            case mood
+            case checkedInAt = "checked_in_at"
+        }
+    }
+    
+    func getRecentCheckIns(for shopId: String, limit: Int = 10) async throws -> [CheckInResponse] {
+        let response = try await supabaseClient
+            .from("coffee_shop_checkins")
+            .select()
+            .eq("shop_id", value: shopId)
+            .order("checked_in_at", ascending: false)
+            .limit(limit)
+            .execute()
+            
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode([CheckInResponse].self, from: response.data)
     }
 }

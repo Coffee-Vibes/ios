@@ -8,6 +8,7 @@ struct CoffeeShopDetailView: View {
     @EnvironmentObject private var authService: AuthenticationService
     @State private var isFavorite: Bool
     @State private var showingReviewSheet = false
+    @State private var showingCheckInSheet = false
     
     init(coffeeShop: CoffeeShop) {
         self.coffeeShop = coffeeShop
@@ -186,6 +187,20 @@ struct CoffeeShopDetailView: View {
                                     }
                                 }
                             )
+                            
+                            ActionIconButton(
+                                icon: "mappin.and.ellipse",
+                                action: { showingCheckInSheet = true }
+                            )
+                            .sheet(isPresented: $showingCheckInSheet) {
+                                CheckInSheet(
+                                    coffeeShop: coffeeShop,
+                                    isPresented: $showingCheckInSheet,
+                                    onCheckInComplete: {
+                                        // Optionally refresh data
+                                    }
+                                )
+                            }
                         }
                         .padding(.horizontal)
                         
@@ -368,6 +383,16 @@ struct CoffeeShopDetailView: View {
         .ignoresSafeArea()
         .task {
             await fetchReviews()
+        }
+        .onAppear {
+            if let userId = authService.currentUser?.id {
+                Task {
+                    try? await coffeeShopService.trackVisit(
+                        for: coffeeShop.id,
+                        userId: userId.uuidString
+                    )
+                }
+            }
         }
     }
     

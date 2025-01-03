@@ -39,6 +39,8 @@ struct CoffeeShop: Identifiable, Codable {
     var distance: Double?
     var websiteUrl: String?
     var phone: String?
+    var lastVisited: Date?
+    var visitCount: Int?
     
     private enum CodingKeys: String, CodingKey {
         case id = "shop_id"
@@ -62,6 +64,8 @@ struct CoffeeShop: Identifiable, Codable {
         case distance
         case websiteUrl = "website_url"
         case phone
+        case lastVisited = "last_visited"
+        case visitCount = "visit_count"
     }
     
     init?(from dictionary: [String: Any]) {
@@ -133,6 +137,8 @@ struct CoffeeShop: Identifiable, Codable {
         distance = try container.decodeIfPresent(Double.self, forKey: .distance)
         websiteUrl = try container.decodeIfPresent(String.self, forKey: .websiteUrl)
         phone = try container.decodeIfPresent(String.self, forKey: .phone)
+        lastVisited = try container.decodeIfPresent(Date.self, forKey: .lastVisited)
+        visitCount = try container.decodeIfPresent(Int.self, forKey: .visitCount)
     }
     
    

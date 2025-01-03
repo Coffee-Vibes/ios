@@ -11,9 +11,64 @@ struct FavoritesScreen: View {
     @State private var errorMessage: String?
     @State private var selectedShop: CoffeeShop?
     @State private var showingDetail = false
+    @State private var selectedFilter: FavoriteFilter = .all
+    
+    private enum FavoriteFilter: String, CaseIterable {
+        case all = "All"
+        case nearby = "Nearby"
+        case recent = "Recent"
+        case mostVisited = "Most Visited"
+        
+        var icon: String {
+            switch self {
+            case .all: return "star.fill"
+            case .nearby: return "location.fill"
+            case .recent: return "clock.fill"
+            case .mostVisited: return "heart.fill"
+            }
+        }
+    }
+    
+    var filteredFavorites: [CoffeeShop] {
+        switch selectedFilter {
+        case .all:
+            return favorites
+        case .nearby:
+            return favorites.sorted { shop1, shop2 in
+                return (shop1.distance ?? Double.infinity) < (shop2.distance ?? Double.infinity)
+            }
+        case .recent:
+            return favorites.sorted { shop1, shop2 in
+                return (shop1.lastVisited ?? Date.distantPast) > (shop2.lastVisited ?? Date.distantPast)
+            }
+        case .mostVisited:
+            return favorites.sorted { shop1, shop2 in
+                return (shop1.visitCount ?? 0) > (shop2.visitCount ?? 0)
+            }
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 16) {
+                // Filter Pills
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(FavoriteFilter.allCases, id: \.self) { filter in
+                            FilterPill(
+                                title: filter.rawValue,
+                                icon: filter.icon,
+                                isSelected: selectedFilter == filter
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedFilter = filter
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .padding(.vertical, 8)
                 
                 // Lists Section
                 VStack(alignment: .leading) {
@@ -22,7 +77,7 @@ struct FavoritesScreen: View {
                             if isLoading {
                                 ProgressView()
                             } else {
-                                ForEach(favorites) { shop in
+                                ForEach(filteredFavorites) { shop in
                                     CoffeeShopCard(
                                         shop: shop,
                                         onViewDetails: {
@@ -138,6 +193,33 @@ struct CategoryPill: View {
         .background(isSelected ? AppColor.primary : Color(hex: "F7F0E1"))
         .foregroundColor(isSelected ? .white : AppColor.foreground)
         .clipShape(Capsule())
+    }
+}
+
+struct FilterPill: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 12))
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? AppColor.primary : AppColor.secondary)
+            .foregroundColor(isSelected ? .white : AppColor.foreground)
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(isSelected ? Color.clear : AppColor.primary.opacity(0.2), lineWidth: 1)
+            )
+        }
     }
 }
 

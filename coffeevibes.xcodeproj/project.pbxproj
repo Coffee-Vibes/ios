@@ -73,6 +73,7 @@
 		ED9FD53E2D27637000E50759 /* AddReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD53D2D27637000E50759 /* AddReviewSheet.swift */; };
 		ED9FD5402D27648800E50759 /* CoffeeShopReviewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */; };
 		ED9FD5422D2768FB00E50759 /* CoffeeShopReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */; };
+		ED9FD5442D287E0700E50759 /* CheckInSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FD5432D287E0700E50759 /* CheckInSheet.swift */; };
 		EDAB7A052D04CF2600C31FBD /* CoffeeShopFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */; };
 /* End PBXBuildFile section */
 
@@ -143,6 +144,7 @@
 		ED9FD53D2D27637000E50759 /* AddReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddReviewSheet.swift; path = coffeevibes/Views/Components/AddReviewSheet.swift; sourceTree = SOURCE_ROOT; };
 		ED9FD53F2D27648800E50759 /* CoffeeShopReviewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeShopReviewService.swift; path = coffeevibes/Services/CoffeeShopReviewService.swift; sourceTree = SOURCE_ROOT; };
 		ED9FD5412D2768FB00E50759 /* CoffeeShopReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CoffeeShopReview.swift; path = coffeevibes/Models/CoffeeShopReview.swift; sourceTree = SOURCE_ROOT; };
+		ED9FD5432D287E0700E50759 /* CheckInSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CheckInSheet.swift; path = coffeevibes/Views/Components/CheckInSheet.swift; sourceTree = SOURCE_ROOT; };
 		EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeShopFilterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -223,6 +225,7 @@
 		841AEF702D02D574009F762B /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				ED9FD5432D287E0700E50759 /* CheckInSheet.swift */,
 				ED9FD53D2D27637000E50759 /* AddReviewSheet.swift */,
 				EDAB7A042D04CF1E00C31FBD /* CoffeeShopFilterView.swift */,
 				841AEF6A2D02D574009F762B /* CoffeeShopCard.swift */,
@@ -504,6 +507,7 @@
 				ED9FD53A2D2733B200E50759 /* CoffeeVibesApp.swift in Sources */,
 				ED9FD53C2D274F4500E50759 /* GooglePlacesService.swift in Sources */,
 				841AEFA62D02D574009F762B /* ForgotPasswordView.swift in Sources */,
+				ED9FD5442D287E0700E50759 /* CheckInSheet.swift in Sources */,
 				841AEFA72D02D574009F762B /* LoginView.swift in Sources */,
 				841AEFA82D02D574009F762B /* MainTabView.swift in Sources */,
 				841AEFA92D02D574009F762B /* OTPVerificationView.swift in Sources */,

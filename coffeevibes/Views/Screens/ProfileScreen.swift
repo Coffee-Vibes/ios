@@ -153,11 +153,11 @@ struct ProfileHeader: View {
             // Stats Row
             HStack(spacing: 10) {
                 Spacer(minLength: .zero)
-                StatItem(count: "\(reviewCount)+", title: "Awarded for\nwriting reviews")
+                StatItem(count: "\(reviewCount)+", title: "Reviews")
                 Divider().frame(height: 40)
-                StatItem(count: "\(visitCount)+", title: "Visited coffee\nshops")
+                StatItem(count: "\(visitCount)+", title: "Check-ins")
                 Divider().frame(height: 40)
-                StatItem(count: "\(favoriteCount)+", title: "Saved new\nfavorites")
+                StatItem(count: "\(favoriteCount)+", title: "Favorites")
                 Spacer(minLength: .zero)
             }
             
