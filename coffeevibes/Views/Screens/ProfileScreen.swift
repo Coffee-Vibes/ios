@@ -26,12 +26,12 @@ struct ProfileScreen: View {
                 }
                 .padding(10)
             }
-            .background(Color(hex: "FAF7F4"))
+            .background(AppColor.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Profile")
-                        .font(.headline)
+                      .titleStyle()
                 }
             }
             .onChange(of: isFinish) {
@@ -123,7 +123,7 @@ struct ProfileHeader: View {
                         Image(systemName: "person.circle.fill")
                             .resizable()
                             .frame(width: 80, height: 80)
-                            .foregroundColor(Color(hex: "B27046"))
+                            .foregroundColor(AppColor.primary)
                             .background(Circle().fill(.white))
                             .overlay(Circle().stroke(Color.white, lineWidth: 2))
                     }
@@ -131,7 +131,7 @@ struct ProfileHeader: View {
                     Image(systemName: "camera.circle.fill")
                         .resizable()
                         .frame(width: 30, height: 30)
-                        .foregroundColor(Color(hex: "B27046"))
+                        .foregroundColor(AppColor.primary)
                         .background(Circle().fill(.white))
                         .offset(x: 25, y: 25)
                 }
@@ -142,11 +142,11 @@ struct ProfileHeader: View {
             VStack(spacing: 4) {
                 Text(userDetails?.name ?? "Alex Johnson")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color(hex: "1D1612"))
+                    .foregroundColor(AppColor.foreground)
                 
                 Text(userDetails?.bio ?? "Coffee lover. Exploring one sip at\na time. Based in NYC")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(hex: "6A6A6A"))
+                    .foregroundColor(AppColor.inputForeground)
                     .multilineTextAlignment(.center)
             }
             
@@ -164,7 +164,7 @@ struct ProfileHeader: View {
             // Preferences Tags
             VStack(alignment: .leading, spacing: 8) {
                 Text("Your Preferences")
-                    .font(.headline)
+                    .titleStyle()
                 if let preferredVibes = userDetails?.preferredVibes {
                     PreferenceTagsRow(tags: preferredVibes)
                 } else {
@@ -334,18 +334,6 @@ struct PreferenceTag: View {
     }
 }
 
-struct StatsSection: View {
-    var body: some View {
-        HStack(spacing: 30) {
-            StatItem(count: "25", title: "Visits")
-            StatItem(count: "15", title: "Reviews")
-            StatItem(count: "8", title: "Favorites")
-        }
-        .padding()
-        .background(Color.blue.opacity(0.1))
-        .cornerRadius(10)
-    }
-}
 
 struct StatItem: View {
     let count: String
@@ -354,8 +342,7 @@ struct StatItem: View {
     var body: some View {
         VStack {
             Text(count)
-                .font(.title2)
-                .fontWeight(.bold)
+                .titleStyle()
             Text(title)
                 .font(.caption)
                 .foregroundColor(.secondary)

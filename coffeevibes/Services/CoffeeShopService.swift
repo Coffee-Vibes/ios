@@ -156,32 +156,6 @@ class CoffeeShopService: ObservableObject {
     // Function to get all coffee shops with favorite status for a user
  
 
-    func getReviews(for shopId: String) async throws -> [CoffeeShopReview] {
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            let response = try await supabaseClient
-                .from("reviews")
-                .select()
-                .eq("shop_id", value: shopId)
-                .execute()
-            
-            let decoder = JSONDecoder()
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm" // Simplified format
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Set to UTC if your dates are in UTC
-            decoder.dateDecodingStrategy = .formatted(dateFormatter)
-            
-            let reviews = try decoder.decode([CoffeeShopReview].self, from: response.data)
-            print("Reviews for shop \(shopId): \(reviews)")
-            return reviews
-        } catch {
-            print("Error fetching reviews: \(error)")
-            throw error
-        }
-    }
-
     @MainActor
     func getCoffeeShopsNearby(userId: String, latitude: Double, longitude: Double, radiusInMiles: Double) async throws -> [CoffeeShop] {
         isLoading = true

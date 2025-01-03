@@ -46,11 +46,10 @@ struct FavoritesScreen: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Favorites")
-                        .font(.headline)
-                        .foregroundColor(Color(hex: "1D1612"))
+                        .titleStyle()
                 }
             }
-            .background(Color(hex: "FAF7F4"))
+            .background(AppColor.background)
             .onAppear {
                 locationManager.requestLocation()
             }

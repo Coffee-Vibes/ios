@@ -5,6 +5,7 @@ enum AppColor {
     static let background = Color(hex: "FAF7F4")
     static let foreground = Color(hex: "1D1612")
     static let inputForeground = Color(hex: "6A6A6A")
+    static let inputBorder = Color(hex: "D0D5DD")
     static let secondary = Color(hex: "FCF3ED")
 }
 
@@ -26,6 +27,8 @@ enum TypeStyle {
     static let h4MediumColor = Color(hex: "1D1612")
     static let h4MediumLineSpacing: CGFloat = 6
 
+    static let title = Font.custom("Nunito-SemiBold", size: 18)
+    static let titleColor = AppColor.foreground
     static func t1(_ text: Text) -> Text {
         text
             .font(t1)
@@ -55,6 +58,12 @@ enum TypeStyle {
             .font(h4Medium)
             .foregroundColor(h4MediumColor)
     }
+
+    static func title(_ text: Text) -> Text {
+        text
+            .font(title)
+            .foregroundColor(titleColor)
+    }
 }
 
 // Text extension for direct Text styling
@@ -77,6 +86,10 @@ extension Text {
 
     func h4MediumStyle() -> Text {
         TypeStyle.h4Medium(self)
+    }
+
+    func titleStyle() -> Text {
+        TypeStyle.title(self)
     }
 }
 
@@ -116,6 +129,13 @@ extension View {
             font: TypeStyle.h4Medium,
             color: TypeStyle.h4MediumColor,
             lineSpacing: TypeStyle.h4MediumLineSpacing
+        ))
+    }
+
+    func titleStyle() -> some View {
+        self.modifier(TextStyleModifier(
+            font: TypeStyle.title,
+            color: TypeStyle.titleColor
         ))
     }
 }
@@ -181,11 +201,13 @@ struct RoundedTextFieldStyle: TextFieldStyle {
             .frame(height: 44)
             .background(Color.white)
             .cornerRadius(8)
-            .foregroundColor(AppColor.inputForeground)
+            .foregroundColor(AppColor.foreground)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(error ? Color.red : Color(hex: "D0D5DD"), lineWidth: 1)
+                    .stroke(error ? Color.red : AppColor.inputBorder, lineWidth: 1)
             )
+            .tint(AppColor.foreground)
+            .foregroundStyle(AppColor.inputForeground)
     }
 }
 
@@ -202,11 +224,13 @@ struct PasswordFieldStyle: TextFieldStyle {
             .frame(height: 44)
             .background(Color.white)
             .cornerRadius(8)
-            .foregroundColor(AppColor.inputForeground)
+            .foregroundColor(AppColor.foreground)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(error ? Color.red : Color(hex: "D0D5DD"), lineWidth: 1)
+                    .stroke(error ? Color.red : AppColor.inputBorder, lineWidth: 1)
             )
+            .tint(AppColor.foreground)
+            .foregroundStyle(AppColor.inputForeground)
     }
 }
 
@@ -227,45 +251,45 @@ struct CheckboxToggleStyle: ToggleStyle {
     }
 } 
 
-struct CustomTextField: View {
+struct CustomStyledTextField: View {
     let placeholder: String
-    let text: Binding<String>
+    @Binding var text: String
     let isSecure: Bool
-    
-    init(_ placeholder: String, text: Binding<String>, isSecure: Bool = false) {
-        self.placeholder = placeholder
-        self.text = text
-        self.isSecure = isSecure
-    }
+    var error: Bool = false
     
     var body: some View {
-        Group {
+        ZStack(alignment: .leading) {
+            if text.isEmpty {
+                Text(placeholder)
+                    .foregroundColor(AppColor.inputForeground)
+                    .padding(.leading, 16)
+            }
+            
             if isSecure {
-                SecureField(placeholder, text: text)
+                SecureField("", text: $text)
+                    .textFieldStyle(PasswordFieldStyle(error: error))
             } else {
-                TextField(placeholder, text: text)
+                TextField("", text: $text)
+                    .textFieldStyle(RoundedTextFieldStyle(error: error))
             }
         }
-        .textFieldStyle(RoundedBorderTextFieldStyle())
-        .padding(.horizontal)
-        .autocapitalization(.none)
     }
 } 
 
-struct CommonStyles {
-    static let colors = ColorScheme(
-        primary: AppColor.primary,
-        secondary: AppColor.secondary,
-        background: AppColor.background,
-        text: AppColor.foreground,
-        lightText: AppColor.inputForeground
-    )
-}
+// struct CommonStyles {
+//     static let colors = ColorScheme(
+//         primary: AppColor.primary,
+//         secondary: AppColor.secondary,
+//         background: AppColor.background,
+//         text: AppColor.foreground,
+//         lightText: AppColor.inputForeground
+//     )
+// }
 
-struct ColorScheme {
-    let primary: Color
-    let secondary: Color
-    let background: Color
-    let text: Color
-    let lightText: Color
-} 
+// struct ColorScheme {
+//     let primary: Color
+//     let secondary: Color
+//     let background: Color
+//     let text: Color
+//     let lightText: Color
+// } 
