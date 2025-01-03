@@ -275,21 +275,3 @@ struct CustomStyledTextField: View {
         }
     }
 } 
-
-// struct CommonStyles {
-//     static let colors = ColorScheme(
-//         primary: AppColor.primary,
-//         secondary: AppColor.secondary,
-//         background: AppColor.background,
-//         text: AppColor.foreground,
-//         lightText: AppColor.inputForeground
-//     )
-// }
-
-// struct ColorScheme {
-//     let primary: Color
-//     let secondary: Color
-//     let background: Color
-//     let text: Color
-//     let lightText: Color
-// } 

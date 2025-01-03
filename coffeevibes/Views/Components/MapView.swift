@@ -22,7 +22,7 @@ struct MapView: View {
                 LoadingView()
             } else if let region = region {
                 Map(coordinateRegion: .constant(region),
-                    showsUserLocation: true,
+                    showsUserLocation: false,
                     userTrackingMode: $userTrackingMode,
                     annotationItems: createAnnotations()) { item in
                     MapAnnotation(coordinate: item.coordinate) {
