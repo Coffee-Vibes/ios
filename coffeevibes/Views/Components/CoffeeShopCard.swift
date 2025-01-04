@@ -8,6 +8,7 @@ struct CoffeeShopCard: View {
     let onViewDetails: () -> Void
     let showDragIndicator: Bool
     let showShadow: Bool
+    let showLastVisited: Bool
     let useNavigationDestination: Bool
     let onFavoriteToggled: (() -> Void)?
     let inverseViewDetailsColors: Bool
@@ -20,6 +21,7 @@ struct CoffeeShopCard: View {
         onViewDetails: @escaping () -> Void,
         showDragIndicator: Bool = true,
         showShadow: Bool = true,
+        showLastVisited: Bool = true,
         useNavigationDestination: Bool = true,
         onFavoriteToggled: (() -> Void)? = nil,
         inverseViewDetailsColors: Bool = false
@@ -28,6 +30,7 @@ struct CoffeeShopCard: View {
         self.onViewDetails = onViewDetails
         self.showDragIndicator = showDragIndicator
         self.showShadow = showShadow
+        self.showLastVisited = showLastVisited
         self.useNavigationDestination = useNavigationDestination
         self.onFavoriteToggled = onFavoriteToggled
         self.inverseViewDetailsColors = inverseViewDetailsColors
@@ -91,7 +94,7 @@ struct CoffeeShopCard: View {
                             .h3Style()
                         Text(shop.todayHours ?? "Hours not available")
                             .h4Style()
-                        if let lastVisited = lastVisitedText {
+                        if showLastVisited, let lastVisited = lastVisitedText {
                             Text(lastVisited)
                                 .font(.system(size: 12))
                                 .foregroundColor(.secondary)

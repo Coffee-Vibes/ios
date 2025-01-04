@@ -9,9 +9,10 @@ struct MapView: View {
     @StateObject private var locationManager = LocationManager()
     @State private var region: MKCoordinateRegion?
     @State private var selectedShop: CoffeeShop?
-    @State private var showingCard = true
+    @State private var showingCard = false
     @GestureState private var dragOffset: CGFloat = 0
     @State private var userTrackingMode: MapUserTrackingMode = .none
+    @State private var currentShopIndex: Int = 0
     
     // Add a constant for the default zoom level
     private let defaultSpan = MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
@@ -32,6 +33,9 @@ struct MapView: View {
                                 shop: shop,
                                 onSelect: {
                                     selectedShop = shop
+                                    if let index = coffeeShopService.coffeeShops.firstIndex(where: { $0.id == shop.id }) {
+                                        currentShopIndex = index
+                                    }
                                     showingCard = true
                                     centerOnLocation(
                                         latitude: shop.latitude ?? 0,
@@ -47,19 +51,36 @@ struct MapView: View {
                 }
                 .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
                 .colorScheme(.light)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        showingCard = false
+                        selectedShop = nil
+                    }
+                }
             } else {
                 LoadingView()
             }
             
-            if let selected = selectedShop, showingCard {
-                SelectedCoffeeShopView(
-                    shop: selected,
-                    onNavigateToDetail: {
+            if !coffeeShopService.coffeeShops.isEmpty && showingCard {
+                SwipeableCoffeeShopCard(
+                    shops: coffeeShopService.coffeeShops,
+                    currentIndex: currentShopIndex,
+                    onSwipe: { newIndex in
+                        currentShopIndex = newIndex
+                        if let shop = coffeeShopService.coffeeShops[safe: newIndex] {
+                            selectedShop = shop
+                            centerOnLocation(
+                                latitude: shop.latitude ?? 0,
+                                longitude: shop.longitude ?? 0
+                            )
+                        }
+                    },
+                    onViewDetails: {
                         showingCard = false
                     }
                 )
                 .transition(.move(edge: .bottom))
-                .offset(y: dragOffset)
+                .offset(y: dragOffset - 60)
                 .gesture(
                     DragGesture()
                         .updating($dragOffset) { value, state, _ in
@@ -312,5 +333,11 @@ struct LoadingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(hex: "FAF7F4"))
+    }
+}
+
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 } 
