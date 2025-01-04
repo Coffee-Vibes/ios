@@ -26,7 +26,7 @@ struct MapView: View {
                     showsUserLocation: false,
                     userTrackingMode: $userTrackingMode,
                     annotationItems: createAnnotations()) { item in
-                    MapAnnotation(coordinate: item.coordinate) {
+                    MapAnnotation(coordinate: item.coordinate, anchorPoint: CGPoint(x: 0.5, y: 1.0)) {
                         switch item.type {
                         case .coffeeShop(let shop):
                             CoffeeShopMarker(
@@ -231,25 +231,44 @@ private struct CoffeeShopMarker: View {
     let isSelected: Bool
     
     var body: some View {
-        Button(action: onSelect) {
-            ZStack {
-                // Debug tap area (we can remove the color later)
-                Circle()
-                    .fill(Color.clear)
-                    .frame(width: 100, height: 100)
-                
-                Image(isSelected ? "coffee_marker_selected" : "coffee_marker")
-                    .resizable()
-                    .frame(width: 100, height: 100)
-                    .scaledToFit()
-            }
+        VStack(spacing: 0) {
+            // Marker Image
+            Image(isSelected ? "coffee_marker_selected" : "coffee_marker")
+                .resizable()
+                .frame(width: 100, height: 100)
+                .scaledToFit()
+                .offset(y: 30)
+            
+            // Shop name label
+            Text(shop.name)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(AppColor.primary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(0.3))
+                        .shadow(color: Color.black.opacity(0.15), radius: 2, x: 0, y: 1)
+                )
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .offset(y: -10)
         }
-        .buttonStyle(MarkerButtonStyle(isSelected: isSelected))
-        .zIndex(isSelected ? 1 : 0)
+        .offset(y: -70)
+        .contentShape(Rectangle()) // Make entire area tappable
+        .background(
+            Rectangle()
+                .fill(Color.clear)
+                .contentShape(Rectangle())
+                .frame(width: 120, height: 160) // Larger hit target
+        )
+        .onTapGesture {
+            onSelect()
+        }
     }
 }
 
-// Add this new button style
+// Update the MarkerButtonStyle to handle the new layout
 private struct MarkerButtonStyle: ButtonStyle {
     let isSelected: Bool
     
@@ -257,7 +276,10 @@ private struct MarkerButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-            .contentShape(Circle()) // Ensures the entire circular area is tappable
+            .contentShape(
+                Rectangle()
+                    .size(width: 100, height: 130) // Increased height to account for label
+            )
     }
 }
 
