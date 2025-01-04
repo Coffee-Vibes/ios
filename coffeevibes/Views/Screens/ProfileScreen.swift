@@ -26,6 +26,11 @@ struct ProfileScreen: View {
                 }
                 .padding(10)
             }
+            .refreshable {
+                Task {
+                    await fetchUserData()
+                }
+            }
             .background(AppColor.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

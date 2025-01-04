@@ -99,6 +99,9 @@ struct FavoritesScreen: View {
                             }
                         }
                     }
+                    .refreshable {
+                        await fetchFavorites()
+                    }
                 }
             }
             .toolbar {
