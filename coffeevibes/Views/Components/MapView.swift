@@ -32,18 +32,32 @@ struct MapView: View {
                             CoffeeShopMarker(
                                 shop: shop,
                                 onSelect: {
-                                    selectedShop = shop
-                                    if let index = coffeeShopService.coffeeShops.firstIndex(where: { $0.id == shop.id }) {
-                                        currentShopIndex = index
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        // Deselect first if tapping a different marker
+                                        if selectedShop?.id != shop.id {
+                                            selectedShop = nil
+                                            showingCard = false
+                                        }
+                                        
+                                        // Small delay to ensure clean state transition
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                selectedShop = shop
+                                                if let index = coffeeShopService.coffeeShops.firstIndex(where: { $0.id == shop.id }) {
+                                                    currentShopIndex = index
+                                                }
+                                                showingCard = true
+                                                centerOnLocation(
+                                                    latitude: shop.latitude ?? 0,
+                                                    longitude: shop.longitude ?? 0
+                                                )
+                                            }
+                                        }
                                     }
-                                    showingCard = true
-                                    centerOnLocation(
-                                        latitude: shop.latitude ?? 0,
-                                        longitude: shop.longitude ?? 0
-                                    )
                                 },
                                 isSelected: selectedShop?.id == shop.id
                             )
+                            .zIndex(selectedShop?.id == shop.id ? 1 : 0)
                         case .userLocation:
                             UserLocationMarker()
                         }
@@ -218,14 +232,32 @@ private struct CoffeeShopMarker: View {
     
     var body: some View {
         Button(action: onSelect) {
-            Image(isSelected ? "coffee_marker_selected" : "coffee_marker")
-                .resizable()
-                .scaledToFit()
-               // .frame(width: 40, height: 40)
-                .padding(8)
-               // .background(Color(hex: "FCF3ED"))
-                .clipShape(Circle())
+            ZStack {
+                // Debug tap area (we can remove the color later)
+                Circle()
+                    .fill(Color.clear)
+                    .frame(width: 100, height: 100)
+                
+                Image(isSelected ? "coffee_marker_selected" : "coffee_marker")
+                    .resizable()
+                    .frame(width: 100, height: 100)
+                    .scaledToFit()
+            }
         }
+        .buttonStyle(MarkerButtonStyle(isSelected: isSelected))
+        .zIndex(isSelected ? 1 : 0)
+    }
+}
+
+// Add this new button style
+private struct MarkerButtonStyle: ButtonStyle {
+    let isSelected: Bool
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+            .contentShape(Circle()) // Ensures the entire circular area is tappable
     }
 }
 
